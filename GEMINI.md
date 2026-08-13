@@ -61,6 +61,10 @@ Welcome, Future AI Agent. You are taking over a project built on extreme aesthet
  │    ├── Help & Pro-tips Panel (interactive guide describing line re-ordering, ergonomics, and advanced features)
  │    └── Council Easter Egg System (secret '🛸' button launching creative credits modal)
  │
+ ├── 🏷️ v1.2.1 (Upcoming UX Refinements)
+ │    ├── Remove betamark and zero from special thanks for increased pseudonymity
+ │    └── Relocate UFO easter egg button to a more obscure, secret location in the interface
+ │
  ├── 🏷️ v2.0.0 (Android Native Goal - In Progress)
  │    ├── Capacitor/Webview wrapper to build an open-source Android App (.apk)
  │    ├── Direct integration with Android Camera/Gallery APIs to reduce storage overhead

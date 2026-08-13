@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">MinimalDiscGolfPro</string>
+    <string name="title_activity_main">MinimalDiscGolfPro</string>
+    <string name="package_name">com.minimaldiscgolfpro.app</string>
+    <string name="custom_url_scheme">com.minimaldiscgolfpro.app</string>
+</resources>

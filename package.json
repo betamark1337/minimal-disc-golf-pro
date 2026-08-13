@@ -1,0 +1,19 @@
+{
+  "name": "gemini_workspace",
+  "version": "1.0.0",
+  "description": "> The ultimate vibe-coded, offline-first, one-handed disc golf scorecard.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "sync-android": "cp index.html www/index.html && npx cap sync android"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "@capacitor/android": "^8.5.0",
+    "@capacitor/cli": "^8.5.0",
+    "@capacitor/core": "^8.5.0"
+  }
+}

@@ -1,0 +1,1621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#121212">
+  <title>Minimal Disc Golf Pro</title>
+  <style>
+    /* Global Universal Reset to Lock Horizontal Scroll & Anchoring */
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      width: 100%;
+      max-width: 100%;
+      overflow-x: hidden;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg: #121212; --card: #1e1e1e; --accent: #2979ff; --text: #ffffff;
+      --subtext: #a0a0a0; --border: #333333; --btn-bg: #2a2a2a; --disabled: #555555;
+      --summary-border: #444444;
+    }
+    
+    /* OLED Themes */
+    [data-theme="oled"] { --bg: #000000; --card: #000000; --accent: #2979ff; --border: #222222; --btn-bg: #111111; --summary-border: #333333; }
+    [data-theme="oled_crimson"] { --bg: #000000; --card: #000000; --accent: #ff1744; --text: #ffebee; --subtext: #ff8a80; --border: #4d000a; --btn-bg: #1a0003; --summary-border: #800010; }
+    [data-theme="oled_purple"] { --bg: #000000; --card: #000000; --accent: #d500f9; --text: #f3e5f5; --subtext: #ea80fc; --border: #3c004d; --btn-bg: #14001a; --summary-border: #6a0080; }
+    [data-theme="oled_emerald"] { --bg: #000000; --card: #000000; --accent: #00ff66; --text: #e0ffe8; --subtext: #50c078; --border: #0a3a1b; --btn-bg: #041409; --summary-border: #0f5024; }
+    [data-theme="oled_amber"] { --bg: #000000; --card: #000000; --accent: #ffb300; --text: #fff8e1; --subtext: #ca9200; --border: #4a3200; --btn-bg: #1a1200; --summary-border: #664400; }
+    [data-theme="oled_cyan"] { --bg: #000000; --card: #000000; --accent: #00e5ff; --text: #e0f7fa; --subtext: #00a0b0; --border: #00384d; --btn-bg: #001520; --summary-border: #00506e; }
+    
+    /* Standard & Fun Themes */
+    [data-theme="slate"] { --bg: #181c20; --card: #22272e; --accent: #90a4ae; --text: #adbac7; --subtext: #768390; --border: #373e47; --btn-bg: #2d333b; --summary-border: #444c56; }
+    [data-theme="teal"] { --bg: #0b1d1a; --card: #132e29; --accent: #1de9b6; --text: #e0f2f1; --subtext: #80cbc4; --border: #1f4740; --btn-bg: #173832; --summary-border: #2c665c; }
+    [data-theme="spooky"] { --bg: #0d0814; --card: #150d22; --accent: #ff6d00; --text: #f3e5f5; --subtext: #b388ff; --border: #3c1e5c; --btn-bg: #211235; --summary-border: #5e2590; }
+    [data-theme="forest"] { --bg: #0a1a0f; --card: #132a1a; --accent: #50fa7b; --text: #f8f8f2; --subtext: #a0c0a8; --border: #1f442b; --btn-bg: #193823; --summary-border: #2d613c; }
+    [data-theme="sunset"] { --bg: #1c1017; --card: #2a1823; --accent: #ff8a65; --text: #fbe9e7; --subtext: #ffab91; --border: #422335; --btn-bg: #351e2c; --summary-border: #6d3a4d; }
+    [data-theme="ocean"] { --bg: #0a192f; --card: #112240; --accent: #00b0ff; --text: #e6f1ff; --subtext: #8892b0; --border: #1d3557; --btn-bg: #1b2a4e; --summary-border: #3a506b; }
+    [data-theme="cyber"] { --bg: #1a1a2e; --card: #16213e; --accent: #f92672; --text: #f8f8f2; --subtext: #ae81ff; --border: #2a2a40; --btn-bg: #1f1f2f; --summary-border: #4e2a4a; }
+    [data-theme="purple"] { --bg: #12091f; --card: #1e1133; --accent: #d070ff; --text: #f5e8ff; --subtext: #b388ff; --border: #341a59; --btn-bg: #271442; --summary-border: #52288c; }
+    [data-theme="crimson"] { --bg: #1a0a0a; --card: #2d1212; --accent: #ff5252; --text: #ffebee; --subtext: #ff8a80; --border: #4d1f1f; --btn-bg: #3b1717; --summary-border: #732e2e; }
+    [data-theme="highcontrast"] { --bg: #000000; --card: #000000; --accent: #ffff00; --text: #ffffff; --subtext: #dddddd; --border: #666666; --btn-bg: #1c1c1c; --summary-border: #888888; }
+
+    body { 
+      background: var(--bg); 
+      color: var(--text); 
+      font-family: system-ui, sans-serif; 
+      padding: 12px; 
+      max-width: 550px; 
+      margin-left: auto; 
+      margin-right: auto; 
+      font-size: 1.05rem; 
+    }
+
+    button, .score-tap, .color-swatch, .emoji-item, .collapse-header, .table-par-btn, .legend-item {
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    input[type="text"], textarea {
+      user-select: text;
+      -webkit-user-select: text;
+    }
+    
+    .header { text-align: center; margin-bottom: 8px; width: 100%; }
+    .course-input { 
+      background: transparent; 
+      border: none; 
+      border-bottom: 2px solid var(--border); 
+      color: var(--accent); 
+      font-size: 1.5rem; 
+      font-weight: bold; 
+      text-align: center; \
+      width: 100%; 
+      padding: 6px; 
+      margin-bottom: 4px; 
+    }
+    .course-input:focus { outline: none; border-bottom-color: var(--accent); }
+
+    .card { background: var(--card); border-radius: 16px; padding: 16px; margin-bottom: 12px; border: 1px solid var(--border); width: 100%; }
+    .row { display: flex; justify-content: space-between; align-items: center; margin: 8px 0; }
+    
+    button { background: var(--btn-bg); color: var(--text); border: 1px solid var(--border); border-radius: 12px; font-size: 1.1rem; font-weight: bold; min-height: 52px; padding: 10px 16px; touch-action: manipulation; cursor: pointer; }
+    button:active { transform: scale(0.96); opacity: 0.9; }
+    button.primary { background: var(--accent); color: #000; border: none; }
+    
+    .touch-btn { min-height: 58px; min-width: 58px; font-size: 1.6rem; }
+    .par-btn { min-height: 48px; min-width: 48px; font-size: 1.3rem; padding: 0; }
+
+    .tab-nav { display: flex; gap: 6px; margin-bottom: 12px; width: 100%; }
+    .tab-nav button { flex: 1; font-size: 0.95rem; padding: 10px 2px; }
+    .active-tab { background: var(--accent) !important; color: #000 !important; }
+
+    .score-cluster { display: flex; align-items: center; gap: 8px; }
+    .clustered-controls { display: flex; gap: 8px; }
+    
+    .par-container { display: flex; align-items: center; justify-content: center; gap: 8px; flex-direction: row !important; }
+    .par-btn-group { display: flex; flex-direction: row; gap: 6px; }
+
+    .hole-title-block { flex: 1; text-align: center; padding: 0 8px; }
+    .hole-title-block h2 { margin: 0; font-size: 2.1rem; }
+
+    .ergonomic-right { flex-direction: row; }
+    .ergonomic-right .side-cluster { margin-left: auto; flex-direction: column; align-items: flex-end; gap: 12px; }
+    .ergonomic-right .hole-title-block { text-align: center; }
+
+    .ergonomic-left { flex-direction: row; }
+    .ergonomic-left .side-cluster { margin-right: auto; flex-direction: column; align-items: flex-start; gap: 12px; }
+    .ergonomic-left .hole-title-block { text-align: center; }
+
+    .score-tap { cursor: pointer; font-weight: bold; transition: transform 0.1s; padding: 0 6px; }
+    .score-tap:active { transform: scale(1.15); }
+
+    .player-row { border-radius: 12px; padding: 14px; margin-bottom: 10px; border: 1px solid var(--border); font-size: 1.1rem; }
+    table { width: 100%; border-collapse: collapse; text-align: center; font-size: 0.95rem; }
+    th, td { padding: 10px 2px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    th { color: var(--subtext); }\
+    tfoot td { font-weight: bold; border-top: 2px solid var(--summary-border); font-size: 1rem; }
+
+    /* Overview Table Par Stepper Control */
+    .table-par-control {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+    }
+    .table-par-btn {
+      min-height: 26px !important;
+      min-width: 26px !important;
+      height: 26px;
+      width: 26px;
+      padding: 0 !important;
+      font-size: 0.85rem !important;
+      border-radius: 6px !important;
+      line-height: 1;
+    }
+    .table-par-val {
+      font-weight: bold;
+      min-width: 18px;
+      display: inline-block;
+      text-align: center;
+    }
+
+    /* Collapsible Section Header */
+    .collapse-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      user-select: none;
+    }
+    .collapse-header h3 {
+      font-size: 1.1rem;
+      margin: 0;
+      color: var(--accent);
+    }
+    .collapse-icon {
+      font-size: 1.1rem;
+      transition: transform 0.2s ease;
+    }
+    .collapse-icon.collapsed {
+      transform: rotate(-90deg);
+    }
+
+    .chart-container { width: 100%; position: relative; resize: vertical; overflow: hidden; min-height: 220px; height: 280px; max-height: 500px; border: 1px dashed var(--border); border-radius: 8px; padding: 4px; }
+    svg { width: 100%; height: 100%; overflow: visible; display: block; }
+    .toggle-group { display: flex; flex-wrap: wrap; gap: 8px; font-size: 0.95rem; margin-top: 8px; width: 100%; }
+    .toggle-group label { display: flex; align-items: center; gap: 6px; color: var(--subtext); cursor: pointer; }
+    .legend-item { cursor: pointer; user-select: none; }
+    .legend-item.disabled-player { opacity: 0.3; filter: grayscale(1); }
+    .unplayed { color: var(--disabled) !important; opacity: 0.5; }
+    .hidden { display: none !important; }
+
+    input[type="text"], textarea, select { background: var(--btn-bg); border: 1px solid var(--border); color: var(--text); padding: 10px; border-radius: 8px; font-size: 1.05rem; width: 100%; }
+    textarea { resize: vertical; min-height: 70px; font-family: inherit; }
+    select { cursor: pointer; }
+    
+    .color-swatch-bar { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; width: 100%; }
+    .color-swatch { flex: 1 0 38px; height: 36px; min-width: 38px; border-radius: 8px; border: 2px solid var(--border); cursor: pointer; transition: transform 0.1s, border-color 0.1s; }
+    .color-swatch:active { transform: scale(0.95); }
+    .color-swatch.active-swatch { border-color: #ffffff !important; box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--text); transform: scale(1.05); }
+    
+    .theme-btn-group button.active-theme { background: var(--accent) !important; color: #000000 !important; font-weight: bold; border-color: var(--accent); }
+
+    /* Attachments Grid Styling */
+    .media-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 8px; margin-top: 10px; }
+    .media-thumb { position: relative; width: 100%; padding-top: 100%; border-radius: 8px; overflow: hidden; border: 1px solid var(--border); background: #000; }
+    .media-thumb img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
+    .media-thumb .remove-btn { position: absolute; top: 2px; right: 2px; background: rgba(255, 0, 0, 0.85); color: #fff; border: none; border-radius: 50%; width: 22px; height: 22px; min-height: 22px; padding: 0; font-size: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+
+    /* Visual Grid Emoji Picker */
+    .emoji-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(36px, 1fr));
+      gap: 6px;
+      margin-top: 8px;
+      margin-bottom: 12px;
+      max-height: 140px;
+      overflow-y: auto;
+      padding: 6px;
+      background: rgba(0,0,0,0.2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+    }
+    .emoji-item {
+      font-size: 1.3rem;
+      text-align: center;
+      padding: 4px;
+      border-radius: 6px;
+      cursor: pointer;
+      user-select: none;
+      transition: background 0.1s, transform 0.1s;
+    }
+    .emoji-item:active { transform: scale(1.2); }
+    .emoji-item.selected-emoji { background: var(--accent); }
+
+    /* 2x2 Grid for Settings Action Buttons */
+    .settings-action-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 16px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header"><input type="text" id="courseName" class="course-input" value="Chippewa Banks Disc Golf Course"></div>
+
+  <div class="tab-nav">
+    <button id="btnTabTrack" class="active-tab" onclick="switchTab('Track')">Track</button>
+    <button id="btnTabOverview" onclick="switchTab('Overview')">Overview</button>
+    <button id="btnTabGraph" onclick="switchTab('Graph')">Graph</button>
+    <button id="btnTabSettings" onclick="switchTab('Settings')">Settings</button>
+  </div>
+
+  <!-- Hidden source elements for dynamic ergonomic distribution -->
+  <div style="display:none;">
+    <div id="holeNavButtons" class="clustered-controls">
+      <button id="holeNavPrev" class="touch-btn" onclick="changeHole(-1)">&#8249;</button>
+      <button id="holeNavNext" class="touch-btn primary" onclick="changeHole(1)">&#8250;</button>
+    </div>
+    <div id="parBtnGroup" class="par-btn-group">
+      <button id="btnParMinus" class="par-btn" onclick="adjustPar(-1)">-</button>
+      <button id="btnParPlus" class="par-btn" onclick="adjustPar(1)">+</button>
+    </div>
+  </div>
+
+  <div id="tabTrack">
+    <div id="mainHoleCard" class="card" style="display:flex; flex-direction:column; gap:16px; padding: 16px 20px;">
+      <!-- Par Row -->
+      <div id="cardParRow" style="display:flex; align-items:center; width:100%; min-height:48px; justify-content: space-between;">
+        <div id="parLeftSlot" style="display:flex; align-items:center; min-width: 58px;"></div>
+        <div id="parLeftLine" style="flex:1; border-bottom:1px dashed var(--border); margin:0 12px; display:none;"></div>
+        <div id="parCenterSlot" style="text-align:center; min-width:80px; display:flex; flex-direction:column; justify-content:center; flex-shrink: 0;">
+          <span style="color:var(--subtext); font-size: 0.75rem; display:block; line-height: 1; font-weight: bold; letter-spacing: 0.5px;">PAR</span>
+          <strong id="parDisplay" style="font-size: 1.55rem; line-height: 1.1;">3</strong>
+        </div>
+        <div id="parRightLine" style="flex:1; border-bottom:1px dashed var(--border); margin:0 12px; display:none;"></div>
+        <div id="parRightSlot" style="display:flex; align-items:center; min-width: 58px; justify-content: flex-end;"></div>
+      </div>
+
+      <!-- Hole Row -->
+      <div id="cardHoleRow" style="display:flex; align-items:center; width:100%; min-height:58px; justify-content: space-between;">
+        <div id="holeLeftSlot" style="display:flex; align-items:center; min-width: 58px;"></div>
+        <div id="holeLeftLine" style="flex:1; border-bottom:1px dashed var(--border); margin:0 12px; display:none;"></div>
+        <div id="holeCenterSlot" style="text-align:center; min-width:110px; display:flex; flex-direction:column; justify-content:center; align-items:center; flex-shrink: 0;">
+          <span id="holeFlairDisplay" style="font-size: 1.25rem; line-height: 1; margin-bottom: 2px;"></span>
+          <span style="color:var(--subtext); font-size: 0.75rem; display:block; line-height: 1; font-weight: bold; letter-spacing: 0.5px;">HOLE</span>
+          <strong id="holeNumberDisplay" style="font-size: 1.55rem; line-height: 1.1;">1</strong>
+        </div>
+        <div id="holeRightLine" style="flex:1; border-bottom:1px dashed var(--border); margin:0 12px; display:none;"></div>
+        <div id="holeRightSlot" style="display:flex; align-items:center; min-width: 58px; justify-content: flex-end;"></div>
+      </div>
+    </div>
+    
+    <div id="playerScoresList"></div>
+
+    <!-- Collapsible Notes & Attachments Module -->
+    <div class="card" style="margin-top: 16px;">
+      <div class="collapse-header" onclick="toggleNotesCollapse()">
+        <h3>Round Notes & Photos</h3>
+        <span id="notesCollapseIcon" class="collapse-icon">▾</span>
+      </div>
+      
+      <div id="notesCollapseBody" style="margin-top: 12px;">
+        <textarea id="roundNotes" placeholder="Weather conditions, disc notes, or round highlights..." onchange="saveRoundNotes(this.value)"></textarea>
+        
+        <div style="margin-top: 12px;">
+          <label style="display: block; font-size: 0.85rem; color: var(--subtext); margin-bottom: 6px;">Attach Photos</label>
+          <input type="file" id="imageInput" accept="image/*" multiple onchange="handleImageUpload(event)" style="display: none;">
+          <button onclick="document.getElementById('imageInput').click()" style="width: 100%; min-height: 42px; font-size: 0.95rem; background: var(--btn-bg);">📷 Add Image File</button>
+        </div>
+
+        <div id="mediaGrid" class="media-grid"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="tabOverview" class="card hidden">
+    <h3 style="margin-top:0; font-size: 1.3rem;">Round Scorecard</h3>
+    <div style="overflow-x:auto;"><table id="overviewTable"><thead><tr id="overviewHeader"><th>Hole</th><th>Par</th></tr></thead><tbody id="overviewBody"></tbody><tfoot id="overviewFooter"></tfoot></table></div>
+  </div>
+
+  <div id="tabGraph" class="card hidden">
+    <h3 style="margin-top:0; font-size: 1.3rem;">Performance Chart</h3>
+    <div class="chart-container" id="chartBox">
+      <svg id="graphSvg" viewBox="0 0 500 280" preserveAspectRatio="none"></svg>
+    </div>
+    <div class="toggle-group" style="margin-top: 16px;"><button id="btnModeRel" class="primary" onclick="setGraphMode('relative')" style="flex:1;">Relative (+/-)</button><button id="btnModeCum" onclick="setGraphMode('cumulative')" style="flex:1;">Cumulative</button></div>
+    <div class="toggle-group"><label><input type="checkbox" id="chkGrid" checked onchange="renderGraph()"> Gridlines</label><label><input type="checkbox" id="chkLabels" checked onchange="renderGraph()"> Labels</label><label><input type="checkbox" id="chkNames" checked onchange="renderGraph()"> Names</label></div>
+  </div>
+
+    <div id="tabSettings" class="card hidden">
+    <!-- 1st: Roster Management at the very top -->
+    <h3 style="font-size: 1.2rem; margin-top:0;">Roster Management</h3>
+    <div id="settingsPlayerList" style="margin-bottom: 12px;"></div>
+    <div style="display:flex; gap:8px; margin-bottom: 16px;">
+      <input type="text" id="newPlayerName" placeholder="New Player Name" style="flex:1;">
+      <button onclick="addPlayer()" style="font-size:0.9rem; padding: 0 16px;">Add Player</button>
+    </div>
+
+    <hr style="border-color: var(--border); margin: 24px 0;">
+
+    <!-- 1.5: Default Par Setup -->
+    <h3 style="font-size: 1.2rem;">Default Par</h3>
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
+      <div style="font-size:0.85rem; color: var(--subtext);">Apply to all holes</div>
+      <div class="toggle-group" style="margin:0; width:auto;">
+        <button onclick="setDefaultPar(3)" style="min-height:36px; padding:0 14px;">3</button>
+        <button onclick="setDefaultPar(4)" style="min-height:36px; padding:0 14px;">4</button>
+        <select onchange="setDefaultPar(parseInt(this.value))" style="min-height:38px; height:38px; padding:0 8px; font-size:0.9rem; border-radius:12px; width:auto; text-align:center;">
+          <option value="" disabled selected>Other</option>
+          <option value="2">2</option>
+          <option value="5">5</option>
+        </select>
+      </div>
+    </div>
+
+    <hr style="border-color: var(--border); margin: 24px 0;">
+
+    <!-- 2nd: Interface Mode -->
+    <h3 style="font-size: 1.2rem;">Interface Mode</h3>
+    <div class="toggle-group" style="margin-bottom: 20px;"><button id="btnLeft" class="primary" onclick="setHandedness('left')" style="flex:1; font-size:0.9rem;">Left Ergonomic</button><button id="btnNormal" onclick="setHandedness('normal')" style="flex:1; font-size:0.9rem;">Centered</button><button id="btnRight" onclick="setHandedness('right')" style="flex:1; font-size:0.9rem;">Right Ergonomic</button></div>
+    
+    <hr style="border-color: var(--border); margin: 24px 0;">
+
+    <!-- 3rd: Theme Selection -->
+    <h3 style="font-size: 1.2rem;">Theme Selection</h3>
+    <div class="toggle-group theme-btn-group" style="margin-bottom: 20px;">
+      <button id="theme-btn-default" onclick="setTheme('default')" style="font-size:0.85rem;">Cobalt Dark</button>
+      <button id="theme-btn-slate" onclick="setTheme('slate')" style="font-size:0.85rem;">Slate Gray</button>
+      <button id="theme-btn-teal" onclick="setTheme('teal')" style="font-size:0.85rem;">Teal Mint</button>
+      <button id="theme-btn-spooky" onclick="setTheme('spooky')" style="font-size:0.85rem;">🎃 Spooky</button>
+      <button id="theme-btn-forest" onclick="setTheme('forest')" style="font-size:0.85rem;">Forest Green</button>
+      <button id="theme-btn-sunset" onclick="setTheme('sunset')" style="font-size:0.85rem;">Sunset Orange</button>
+      <button id="theme-btn-ocean" onclick="setTheme('ocean')" style="font-size:0.85rem;">Ocean Blue</button>
+      <button id="theme-btn-cyber" onclick="setTheme('cyber')" style="font-size:0.85rem;">Cyberpunk</button>
+      <button id="theme-btn-purple" onclick="setTheme('purple')" style="font-size:0.85rem;">Midnight Purple</button>
+      <button id="theme-btn-crimson" onclick="setTheme('crimson')" style="font-size:0.85rem;">Crimson</button>
+      <button id="theme-btn-highcontrast" onclick="setTheme('highcontrast')" style="font-size:0.85rem;">High Contrast</button>
+      <button id="theme-btn-oled" onclick="setTheme('oled')" style="font-size:0.85rem;">OLED Cobalt</button>
+      <button id="theme-btn-oled_crimson" onclick="setTheme('oled_crimson')" style="font-size:0.85rem;">OLED Crimson</button>
+      <button id="theme-btn-oled_purple" onclick="setTheme('oled_purple')" style="font-size:0.85rem;">OLED Purple</button>
+      <button id="theme-btn-oled_emerald" onclick="setTheme('oled_emerald')" style="font-size:0.85rem;">OLED Emerald</button>
+      <button id="theme-btn-oled_amber" onclick="setTheme('oled_amber')" style="font-size:0.85rem;">OLED Amber</button>
+      <button id="theme-btn-oled_cyan" onclick="setTheme('oled_cyan')" style="font-size:0.85rem;">OLED Cyan</button>
+    </div>
+
+    <hr style="border-color: var(--border); margin: 24px 0;">
+
+    <!-- 4th: Custom Highlight Override -->
+    <h3 style="font-size: 1.2rem;">Custom Highlight Override</h3>
+    <div style="font-size:0.85rem; color: var(--subtext); margin-bottom: 4px;">Global Base Colors</div>
+    <div class="color-swatch-bar" style="margin-bottom: 12px;">
+      <div class="color-swatch" id="swatch-null" style="background: transparent; color: var(--text); display:flex; align-items:center; justify-content:center; font-size:0.8rem;" onclick="setHighlightOverride(null)">Reset</div>
+      <div class="color-swatch" id="swatch-ffffff" style="background: #ffffff;" onclick="setHighlightOverride('#ffffff')"></div>
+      <div class="color-swatch" id="swatch-ff5252" style="background: #ff5252;" onclick="setHighlightOverride('#ff5252')"></div>
+      <div class="color-swatch" id="swatch-ff4081" style="background: #ff4081;" onclick="setHighlightOverride('#ff4081')"></div>
+      <div class="color-swatch" id="swatch-e040fb" style="background: #e040fb;" onclick="setHighlightOverride('#e040fb')"></div>
+      <div class="color-swatch" id="swatch-7c4dff" style="background: #7c4dff;" onclick="setHighlightOverride('#7c4dff')"></div>
+      <div class="color-swatch" id="swatch-536dfe" style="background: #536dfe;" onclick="setHighlightOverride('#536dfe')"></div>
+      <div class="color-swatch" id="swatch-448aff" style="background: #448aff;" onclick="setHighlightOverride('#448aff')"></div>
+      <div class="color-swatch" id="swatch-40c4ff" style="background: #40c4ff;" onclick="setHighlightOverride('#40c4ff')"></div>
+      <div class="color-swatch" id="swatch-18ffff" style="background: #18ffff;" onclick="setHighlightOverride('#18ffff')"></div>
+      <div class="color-swatch" id="swatch-64ffda" style="background: #64ffda;" onclick="setHighlightOverride('#64ffda')"></div>
+      <div class="color-swatch" id="swatch-69f0ae" style="background: #69f0ae;" onclick="setHighlightOverride('#69f0ae')"></div>
+      <div class="color-swatch" id="swatch-b2ff59" style="background: #b2ff59;" onclick="setHighlightOverride('#b2ff59')"></div>
+      <div class="color-swatch" id="swatch-eeff41" style="background: #eeff41;" onclick="setHighlightOverride('#eeff41')"></div>
+      <div class="color-swatch" id="swatch-ffff00" style="background: #ffff00;" onclick="setHighlightOverride('#ffff00')"></div>
+      <div class="color-swatch" id="swatch-ffd740" style="background: #ffd740;" onclick="setHighlightOverride('#ffd740')"></div>
+      <div class="color-swatch" id="swatch-ffab40" style="background: #ffab40;" onclick="setHighlightOverride('#ffab40')"></div>
+      <div class="color-swatch" id="swatch-ff6e40" style="background: #ff6e40;" onclick="setHighlightOverride('#ff6e40')"></div>
+      
+      <!-- Native Custom Color Picker Swatch -->
+      <div class="color-swatch" id="swatch-custom" style="position:relative; background: linear-gradient(45deg, red, orange, yellow, green, blue, purple); display:flex; align-items:center; justify-content:center; font-size:1.1rem; font-weight:bold;" onclick="document.getElementById('customColorPicker').click()">
+        🎨
+        <input type="color" id="customColorPicker" style="position:absolute; top:0; left:0; width:100%; height:100%; opacity:0; cursor:pointer;" onchange="setHighlightOverride(this.value)">
+      </div>
+    </div>
+
+    <!-- Randomizer Row -->
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 4px;">
+      <div style="font-size:0.85rem; color: var(--subtext);">Surprise Me Palette</div>
+      <button onclick="generateRandomRow()" style="min-height: 28px; height: 28px; font-size: 0.75rem; padding: 0 10px; border-radius: 6px; background:var(--btn-bg); color:var(--accent); border-color:var(--border);">🎲 Roll Row</button>
+    </div>
+    <div class="color-swatch-bar" id="randomSwatchBar" style="margin-bottom: 16px;"></div>
+
+    <div style="font-size:0.85rem; color: var(--subtext); margin-bottom: 4px;">Theme-Contextual Accents</div>
+    <div class="color-swatch-bar" id="contextualSwatchBar" style="margin-bottom: 20px;"></div>
+
+    <hr style="border-color: var(--border); margin: 24px 0;">
+
+    <!-- 5th: Player & Scorecard Title Flairs -->
+    <h3 style="font-size: 1.2rem;">Player & Title Flairs</h3>
+    
+    <!-- Title Flair sub-block -->
+    <div style="margin-bottom: 16px; padding:12px; border:1px solid var(--border); border-radius:10px; background:rgba(0,0,0,0.15);">
+      <div style="font-weight: bold; color: var(--accent); font-size: 0.95rem; margin-bottom: 8px;">Scorecard Title Flair</div>
+      <div style="display:flex; gap:8px; align-items:center; margin-bottom: 8px;">
+        <div id="titleFlairPreview" onclick="setTitleFlair('')" style="cursor:pointer; font-size: 1.8rem; min-width: 48px; height: 48px; display:flex; align-items:center; justify-content:center; background:var(--btn-bg); border: 1px solid var(--border); border-radius: 12px; transition: all 0.15s;" title="Click preview block to clear emoji"></div>
+        <input type="text" id="titleFlairInput" placeholder="Type or paste scorecard emoji..." value="" onchange="setTitleFlair(this.value)" style="flex:1; height: 48px;">
+      </div>
+      <div class="emoji-grid" id="titleEmojiGrid"></div>
+    </div>
+
+    <!-- Player Flairs container -->
+    <div id="playerFlairsContainer" style="margin-bottom: 20px;"></div>
+
+    <hr style="border-color: var(--border); margin: 24px 0;">
+
+    <!-- 5.5: Course Catalog -->
+    <h3 style="font-size: 1.2rem;">Course Catalog</h3>
+    <div style="display:flex; gap:8px; margin-bottom: 8px;">
+      <button onclick="saveCoursePreset()" style="flex:1; font-size:0.9rem; padding: 0 12px; background:var(--btn-bg);">Save Current Course</button>
+    </div>
+    <select id="courseCatalogSelect" onchange="loadCoursePreset(this.value)" style="margin-bottom: 20px;">
+      <option value="" disabled selected>Load Saved Preset...</option>
+    </select>
+
+    <!-- 5.6: Past Rounds History -->
+    <h3 style="font-size: 1.2rem;">Past Rounds</h3>
+    <div id="roundHistoryList" style="margin-bottom: 20px; font-size: 0.9rem; color: var(--subtext);">
+      No history yet.
+    </div>
+
+    <hr style="border-color: var(--border); margin: 24px 0;">
+    
+    <!-- 6th: Exporting Section -->
+    <div class="settings-action-grid">
+      <button onclick="saveRoundToHistory()" style="background:#223311; color:#aaff66; border-color:#446622; font-size: 0.95rem; line-height: 1.2;">💾 Save Round<br><span style="font-size: 0.75rem; opacity: 0.85;">(History)</span></button>
+      <button onclick="exportMasterRound()" style="background:#112233; color:#66b2ff; border-color:#224466; font-size: 0.95rem; line-height: 1.2;">📤 Export Master<br><span style="font-size: 0.75rem; opacity: 0.85;">(.dgpro)</span></button>
+      <button onclick="document.getElementById('unifiedImportInput').click()" style="background:#113322; color:#66ffaa; border-color:#226644; font-size: 0.95rem; line-height: 1.2;">📥 Import File<br><span style="font-size: 0.75rem; opacity: 0.85;">(.dgpro, .json, .csv)</span></button>
+      <button onclick="exportCSVData()" style="background:#2d2611; color:#ffdd66; border-color:#554422; font-size: 0.95rem; line-height: 1.2;">📊 Export CSV<br><span style="font-size: 0.75rem; opacity: 0.85;">(Spreadsheet)</span></button>
+      <button onclick="resetRound()" style="background:#331111; color:#ff6666; border-color:#662222; font-size: 0.95rem; line-height: 1.2; grid-column: span 2;">🔄 Reset Round<br><span style="font-size: 0.75rem; opacity: 0.85;">(Clear Active)</span></button>
+      <input type="file" id="unifiedImportInput" accept=".dgpro,.json,.csv" onchange="importUnifiedFile(event)" style="display:none;">
+    </div>
+  </div><script>
+    // Safe JSON parser to prevent White Screen of Death on storage corruption
+    function safeParseItem(key, defaultValue) {
+      try {
+        let raw = localStorage.getItem(key);
+        if (!raw) return defaultValue;
+        return JSON.parse(raw);
+      } catch (err) {
+        console.warn(`Error parsing localStorage key "${key}":`, err);
+        return defaultValue;
+      }
+    }
+
+    // Lightweight, zero-dependency, promise-based IndexedDB engine for full-res photo attachments
+    const dbName = "dg_pro_db", dbVersion = 2, storeName = "photos";
+    let db;
+
+    function initDB() {
+      return new Promise((resolve, reject) => {
+        let request = indexedDB.open(dbName, dbVersion);
+        request.onupgradeneeded = function(e) {
+          let dbInstance = e.target.result;
+          if (!dbInstance.objectStoreNames.contains(storeName)) {
+            dbInstance.createObjectStore(storeName, { keyPath: "id", autoIncrement: true });
+          }
+          if (!dbInstance.objectStoreNames.contains("courses")) {
+            dbInstance.createObjectStore("courses", { keyPath: "id", autoIncrement: true });
+          }
+          if (!dbInstance.objectStoreNames.contains("rounds")) {
+            dbInstance.createObjectStore("rounds", { keyPath: "id", autoIncrement: true });
+          }
+        };
+        request.onsuccess = function(e) {
+          db = e.target.result;
+          resolve(db);
+        };
+        request.onerror = function(e) {
+          console.error("IndexedDB open error:", e.target.error);
+          reject(e.target.error);
+        };
+      });
+    }
+
+    function savePhotoToDB(base64Data) {
+      return new Promise((resolve, reject) => {
+        if (!db) { resolve(); return; }
+        let transaction = db.transaction([storeName], "readwrite");
+        let store = transaction.objectStore(storeName);
+        let request = store.add({ data: base64Data });
+        request.onsuccess = function(e) {
+          resolve(e.target.result); // Returns generated auto-increment key
+        };
+        request.onerror = function(e) {
+          reject(e.target.error);
+        };
+      });
+    }
+
+    function getAllPhotosFromDB() {
+      return new Promise((resolve, reject) => {
+        if (!db) { resolve([]); return; }
+        let transaction = db.transaction([storeName], "readonly");
+        let store = transaction.objectStore(storeName);
+        let request = store.getAll();
+        request.onsuccess = function(e) {
+          resolve(e.target.result || []);
+        };
+        request.onerror = function(e) {
+          reject(e.target.error);
+        };
+      });
+    }
+
+    function deletePhotoFromDB(id) {
+      return new Promise((resolve, reject) => {
+        if (!db) { resolve(); return; }
+        let transaction = db.transaction([storeName], "readwrite");
+        let store = transaction.objectStore(storeName);
+        let request = store.delete(id);
+        request.onsuccess = function(e) {
+          resolve();
+        };
+        request.onerror = function(e) {
+          reject(e.target.error);
+        };
+      });
+    }
+
+    function clearAllPhotosFromDB() {
+      return new Promise((resolve, reject) => {
+        if (!db) { resolve(); return; }
+        let transaction = db.transaction([storeName], "readwrite");
+        let store = transaction.objectStore(storeName);
+        let request = store.clear();
+        request.onsuccess = function(e) {
+          resolve();
+        };
+        request.onerror = function(e) {
+          reject(e.target.error);
+        };
+      });
+    }
+
+    let currentHole = 1, graphMode = 'relative', theme = localStorage.getItem('dg_theme') || 'default', handMode = localStorage.getItem('dg_hand') || 'left';
+    let highlightOverride = localStorage.getItem('dg_highlight') || null;
+    let titleFlair = localStorage.getItem('dg_title_flair') || '';
+    let hiddenPlayers = {};
+    let roundNotes = localStorage.getItem('dg_notes') || '';
+    let roundImages = []; // Loaded asynchronously from IndexedDB at launch
+    let notesCollapsed = localStorage.getItem('dg_notes_collapsed') === 'true';
+    let graphRenderOrder = []; // Dynamic drawing and legend order array for graph overlays
+
+    const availableFlairs = [
+      '🥏', '🦅', '🐥', '💣', '🎯', '🔥', '⚡', '🌲', '👑',
+      '🐦‍⬛', '🦑', '🍉', '♿', '💃', '🎃', '👻', '🦇', '🕷️',
+      '💀', '🧙', '🧟', '🧛', '🐈‍⬛', '👽', '🤡', '🦄', '💩',
+      '🍌', '🦖', '🍕', '🍄', '🚀', '🤖', '🗿', '🧀', '🌭',
+      '⭐', '🏆', '🥇', '💥', '🐺', '🦊', '🐻', '🐼', '🐯'
+    ];
+
+    const spookyFlairs = ['🎃', '👻', '🦇', '🕷️', '💀', '🧙', '🧟', '🧛', '🐈‍⬛', '👽'];
+
+    const themePalettes = { 
+      default: ["#2979ff", "#ff4081", "#00e5ff", "#ffeb3b", "#7c4dff", "#00e676", "#ffb300", "#f50057"], 
+      slate: ["#90a4ae", "#ff8a65", "#4db6ac", "#ba68c8", "#7986cb", "#81c784", "#e57373", "#a1887f"],
+      teal: ["#1de9b6", "#ff4081", "#ffb300", "#7c4dff", "#00bfa5", "#ff5252", "#ffd740", "#b388ff"],
+      spooky: ["#ff6d00", "#76ff03", "#d500f9", "#00e5ff", "#ff3d00", "#c6ff00", "#aa00ff", "#18ffff"],
+      oled: ["#2979ff", "#ff4081", "#00e5ff", "#ffeb3b", "#7c4dff", "#00e676", "#ffb300", "#f50057"], 
+      oled_crimson: ["#ff1744", "#00e5ff", "#ffea00", "#76ff03", "#d500f9", "#ff3d00", "#18ffff", "#c6ff00"],
+      oled_purple: ["#d500f9", "#00e5ff", "#ff6d00", "#76ff03", "#f50057", "#18ffff", "#ff9100", "#c6ff00"],
+      oled_emerald: ["#00ff66", "#66ffcc", "#00cc66", "#aaff88", "#00e676", "#1de9b6", "#b2ff59", "#76ff03"],
+      oled_amber: ["#ffb300", "#ff8f00", "#ffe082", "#ff6f00", "#ffd740", "#ffc107", "#ffca28", "#ffa000"],
+      oled_cyan: ["#00e5ff", "#80d8ff", "#00b0ff", "#00838f", "#18ffff", "#4dd0e1", "#00e676", "#00bfa5"],
+      forest: ["#50fa7b", "#ff79c6", "#8be9fd", "#ffb86c", "#50fa7b", "#bd93f9", "#f1fa8c", "#ff5555"], 
+      sunset: ["#ff8a65", "#26c6da", "#ab47bc", "#ffee58", "#ff7043", "#4dd0e1", "#ba68c8", "#ffca28"], 
+      ocean: ["#00b0ff", "#ff4081", "#76ff03", "#ffd700", "#40c4ff", "#f50057", "#b2ff59", "#ffea00"], 
+      cyber: ["#f92672", "#66d9ef", "#a6e22e", "#fd971f", "#f92672", "#a6e22e", "#66d9ef", "#e6db74"],
+      purple: ["#d070ff", "#00f0ff", "#ff3366", "#ffea00", "#b388ff", "#18ffff", "#ff5252", "#ffd740"],
+      crimson: ["#ff5252", "#40c4ff", "#69f0ae", "#ffd700", "#ff1744", "#00b0ff", "#00e676", "#ffea00"],
+      highcontrast: ["#ffff00", "#00ffff", "#ff00ff", "#00ff00", "#ff0000", "#0000ff", "#ffffff", "#ff8800"]
+    };
+
+    let defaultPar = safeParseItem('dg_default_par', 3);
+    let pars = safeParseItem('dg_pars', Array(18).fill(defaultPar));
+    let players = safeParseItem('dg_players', [
+      { id: 1, name: "Player 1", flair: "🥏", scores: Array(18).fill(null) }
+    ]);
+
+    function getPlayerColor(i) { 
+      if (players[i] && players[i].color) return players[i].color;
+      let palette = themePalettes[theme] || themePalettes.default; 
+      return palette[i % palette.length]; 
+    }
+    
+    function getOutcomeColor(diff) {
+      if (diff < 0) return '#00e676';
+      if (diff === 0) return '#e0e0e0';
+      if (diff === 1) return '#ffb300';
+      if (diff === 2) return '#ff5252';
+      return '#e040fb';
+    }
+
+    function getStrokeColor(strokes, par) { 
+      if (strokes === null || strokes === undefined) return 'var(--disabled)'; 
+      return getOutcomeColor(strokes - par); 
+    }
+    
+    function applyTheme() { 
+      document.documentElement.setAttribute('data-theme', theme === 'default' ? '' : theme); 
+      if (highlightOverride) {
+        document.documentElement.style.setProperty('--accent', highlightOverride);
+      } else {
+        document.documentElement.style.removeProperty('--accent');
+      }
+      let metaColor = theme.startsWith('oled') ? '#000000' : (theme === 'spooky' ? '#0d0814' : '#121212');
+      document.querySelector('meta[name="theme-color"]').setAttribute('content', metaColor);
+      
+      updateSettingsUI();
+    }
+    
+    function updateSettingsUI() {
+      document.querySelectorAll('.theme-btn-group button').forEach(b => b.classList.remove('active-theme'));
+      let activeThemeBtn = document.getElementById(`theme-btn-${theme}`);
+      if (activeThemeBtn) activeThemeBtn.classList.add('active-theme');
+
+      // Render Contextual Swatches based on active theme palette
+      let contextualContainer = document.getElementById('contextualSwatchBar');
+      if (contextualContainer) {
+        let palette = themePalettes[theme] || themePalettes.default;
+        contextualContainer.innerHTML = palette.map(color => {
+          return `<div class="color-swatch" style="background: ${color};" onclick="setHighlightOverride('${color}')"></div>`;
+        }).join('');
+      }
+
+      // Sync active-swatch styling across all generated and custom color swatches
+      document.querySelectorAll('.color-swatch').forEach(s => {
+        s.classList.remove('active-swatch');
+        let onclickAttr = s.getAttribute('onclick') || '';
+        if (highlightOverride) {
+          let cleanHex = highlightOverride.toLowerCase();
+          if (onclickAttr.toLowerCase().includes(cleanHex)) {
+            s.classList.add('active-swatch');
+          }
+        } else {
+          if (onclickAttr.includes('null')) {
+            s.classList.add('active-swatch');
+          }
+        }
+      });
+    }
+
+    function generateRandomRow() {
+      let randomBar = document.getElementById('randomSwatchBar');
+      if (!randomBar) return;
+      
+      let colors = [];
+      for (let i = 0; i < 6; i++) {
+        let h = Math.floor(Math.random() * 360);
+        let s = Math.floor(Math.random() * 60) + 40; // 40-100% saturation
+        let l = Math.floor(Math.random() * 50) + 40; // 40-90% lightness
+        let color = `hsl(${h}, ${s}%, ${l}%)`;
+        colors.push(color);
+      }
+      
+      randomBar.innerHTML = colors.map(color => {
+        return `<div class="color-swatch" style="background: ${color};" onclick="setHighlightOverride('${color}')"></div>`;
+      }).join('');
+      
+      updateSettingsUI();
+    }
+
+    function setDefaultPar(val) {
+      defaultPar = val;
+      localStorage.setItem('dg_default_par', val);
+      pars = Array(18).fill(val);
+      saveState();
+      renderOverview();
+      updateDisplay();
+    }
+
+    function setTheme(t) { 
+      theme = t; 
+      localStorage.setItem('dg_theme', t); 
+      
+      if (t === 'spooky') {
+        titleFlair = '🎃';
+        localStorage.setItem('dg_title_flair', '🎃');
+        let input = document.getElementById('titleFlairInput');
+        if (input) input.value = '🎃';
+
+        players.forEach((p, idx) => {
+          p.flair = spookyFlairs[idx % spookyFlairs.length];
+        });
+      }
+
+      applyTheme(); 
+      updateDisplay(); 
+    }
+    
+    function setHighlightOverride(color) {
+      highlightOverride = color;
+      if (color) localStorage.setItem('dg_highlight', color);
+      else localStorage.removeItem('dg_highlight');
+      applyTheme();
+      updateDisplay();
+    }
+
+    function setTitleFlair(f) {
+      if (f !== '' && titleFlair === f) {
+        titleFlair = '';
+      } else {
+        titleFlair = f;
+      }
+      localStorage.setItem('dg_title_flair', titleFlair);
+      let input = document.getElementById('titleFlairInput');
+      if (input) input.value = titleFlair;
+      let preview = document.getElementById('titleFlairPreview');
+      if (preview) {
+        preview.innerText = titleFlair || 'None';
+        preview.style.opacity = titleFlair ? '1' : '0.4';
+        preview.style.fontSize = titleFlair ? '1.8rem' : '0.85rem';
+        preview.style.color = titleFlair ? 'var(--text)' : 'var(--subtext)';
+      }
+      renderEmojiGrids();
+      updateDisplay();
+    }
+
+    function saveState() { 
+      localStorage.setItem('dg_course', document.getElementById('courseName').value); 
+      localStorage.setItem('dg_pars', JSON.stringify(pars)); 
+      localStorage.setItem('dg_players', JSON.stringify(players)); 
+      localStorage.setItem('dg_notes', roundNotes);
+      localStorage.setItem('dg_notes_collapsed', notesCollapsed);
+    }
+
+    function loadState() { 
+      let savedCourse = localStorage.getItem('dg_course'); 
+      if (savedCourse) document.getElementById('courseName').value = savedCourse; 
+      document.getElementById('titleFlairInput').value = titleFlair;
+      document.getElementById('roundNotes').value = roundNotes;
+      applyNotesCollapseState();
+      applyTheme(); 
+      setHandedness(handMode); 
+      setTitleFlair(titleFlair); // Refresh title flair preview and grids
+      generateRandomRow(); // Populate surprise palette swatches
+
+      // Initialize IndexedDB and load full-resolution photos
+      initDB().then(() => {
+        renderCourseCatalog();
+        renderRoundHistory();
+        return getAllPhotosFromDB();
+      }).then(photos => {
+        roundImages = photos;
+        renderMediaGrid();
+      }).catch(err => {
+        console.error("IndexedDB load error:", err);
+      });
+    }
+    
+    // Course Preset Management
+    function saveCoursePreset() {
+      if (!db) return;
+      let course = document.getElementById('courseName').value;
+      let preset = { name: course, pars: pars };
+      db.transaction(["courses"], "readwrite").objectStore("courses").add(preset).onsuccess = () => {
+        renderCourseCatalog();
+        alert("Course preset saved!");
+      };
+    }
+
+    function loadCoursePreset(id) {
+      if (!db) return;
+      db.transaction(["courses"], "readonly").objectStore("courses").get(parseInt(id)).onsuccess = (e) => {
+        let preset = e.target.result;
+        if (preset) {
+          document.getElementById('courseName').value = preset.name;
+          pars = preset.pars;
+          saveState();
+          updateDisplay();
+          renderOverview();
+          alert("Course loaded!");
+        }
+      };
+    }
+
+    function renderCourseCatalog() {
+      if (!db) return;
+      db.transaction(["courses"], "readonly").objectStore("courses").getAll().onsuccess = (e) => {
+        let courses = e.target.result;
+        let select = document.getElementById('courseCatalogSelect');
+        select.innerHTML = '<option value="" disabled selected>Load Saved Preset...</option>';
+        courses.forEach(c => {
+          select.innerHTML += `<option value="${c.id}">${c.name}</option>`;
+        });
+      };
+    }
+
+    // Round History Management
+    function saveRoundToHistory() {
+      if (!db || !confirm("Save round to history?")) return;
+      
+      let roundData = {
+        date: new Date().toISOString(),
+        course: document.getElementById('courseName').value,
+        pars: pars,
+        players: players,
+        notes: roundNotes,
+        images: roundImages.map(img => img.data)
+      };
+
+      db.transaction(["rounds"], "readwrite").objectStore("rounds").add(roundData).onsuccess = () => {
+        renderRoundHistory();
+        alert("Round saved to history!");
+      };
+    }
+
+    function renderRoundHistory() {
+      if (!db) return;
+      db.transaction(["rounds"], "readonly").objectStore("rounds").getAll().onsuccess = (e) => {
+        let rounds = e.target.result;
+        let list = document.getElementById('roundHistoryList');
+        if (rounds.length === 0) {
+          list.innerHTML = 'No history yet.';
+          return;
+        }
+        list.innerHTML = rounds.map(r => `
+          <div style="margin-bottom: 8px; padding: 8px; background:var(--btn-bg); border-radius: 8px;">
+            <div>${r.course} (${new Date(r.date).toLocaleDateString()})</div>
+          </div>
+        `).join('');
+      };
+    }
+    
+    function setParScore(pI) { players[pI].scores[currentHole - 1] = pars[currentHole - 1]; updateDisplay(); }
+    function adjustPar(d) { pars[currentHole - 1] = Math.max(2, pars[currentHole - 1] + d); updateDisplay(); }
+    function adjustHoleParOverview(holeIdx, d) {
+      pars[holeIdx] = Math.max(2, pars[holeIdx] + d);
+      saveState();
+      renderOverview();
+      updateDisplay();
+    }
+    function changeHole(d) { currentHole = Math.min(18, Math.max(1, currentHole + d)); updateDisplay(); }
+    function adjustPlayerScore(pI, d) { let s = players[pI].scores[currentHole - 1]; players[pI].scores[currentHole - 1] = s === null ? pars[currentHole - 1] + d : Math.max(1, s + d); updateDisplay(); }
+
+    function togglePlayerGraph(pId) {
+      hiddenPlayers[pId] = !hiddenPlayers[pId];
+      
+      // When a player is toggled on (active), move them to the end of graphRenderOrder so they render on top
+      if (!hiddenPlayers[pId]) {
+        graphRenderOrder = graphRenderOrder.filter(id => id !== pId);
+        graphRenderOrder.push(pId);
+      }
+      
+      renderGraph();
+    }
+
+    /* Notes & Photo Attachment Collapsible Handlers */
+    function toggleNotesCollapse() {
+      notesCollapsed = !notesCollapsed;
+      applyNotesCollapseState();
+      saveState();
+    }
+
+    function applyNotesCollapseState() {
+      let body = document.getElementById('notesCollapseBody');
+      let icon = document.getElementById('notesCollapseIcon');
+      if (notesCollapsed) {
+        body.classList.add('hidden');
+        icon.classList.add('collapsed');
+      } else {
+        body.classList.remove('hidden');
+        icon.classList.remove('collapsed');
+      }
+    }
+
+    function saveRoundNotes(val) {
+      roundNotes = val;
+      saveState();
+    }
+
+    function storePhotoInIndexedDB(file) {
+      let reader = new FileReader();
+      reader.onload = function(evt) {
+        let rawBase64 = evt.target.result;
+        savePhotoToDB(rawBase64).then(id => {
+          roundImages.push({ id: id, data: rawBase64 });
+          renderMediaGrid();
+        }).catch(err => {
+          console.error("Failed to save image to IndexedDB:", err);
+          alert("Database storage error: unable to save full-resolution photo.");
+        });
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function handleImageUpload(e) {
+      let files = Array.from(e.target.files);
+      files.forEach(file => {
+        storePhotoInIndexedDB(file);
+      });
+      e.target.value = '';
+    }
+
+    function removeImage(idx) {
+      let photo = roundImages[idx];
+      if (photo && photo.id) {
+        deletePhotoFromDB(photo.id).then(() => {
+          roundImages.splice(idx, 1);
+          renderMediaGrid();
+        }).catch(err => {
+          console.error("Database deletion error:", err);
+        });
+      }
+    }
+
+    function renderMediaGrid() {
+      let grid = document.getElementById('mediaGrid');
+      grid.innerHTML = '';
+      roundImages.forEach((photo, idx) => {
+        grid.innerHTML += `
+          <div class="media-thumb">
+            <img src="${photo.data}" alt="Attachment ${idx+1}">
+            <button class="remove-btn" onclick="removeImage(${idx})">✕</button>
+          </div>
+        `;
+      });
+    }
+
+    function setHandedness(mode) {
+      handMode = mode; localStorage.setItem('dg_hand', mode);
+      ['Normal', 'Left', 'Right'].forEach(m => { let el = document.getElementById('btn' + m); if (el) el.className = mode === m.toLowerCase() ? 'primary' : ''; });
+      
+      let btnPrev = document.getElementById('holeNavPrev');
+      let btnNext = document.getElementById('holeNavNext');
+      let btnParMinus = document.getElementById('btnParMinus');
+      let btnParPlus = document.getElementById('btnParPlus');
+      
+      let parBtnGroup = document.getElementById('parBtnGroup');
+      let holeNavButtons = document.getElementById('holeNavButtons');
+
+      let parLeftSlot = document.getElementById('parLeftSlot');
+      let parRightSlot = document.getElementById('parRightSlot');
+      let holeLeftSlot = document.getElementById('holeLeftSlot');
+      let holeRightSlot = document.getElementById('holeRightSlot');
+
+      let parLeftLine = document.getElementById('parLeftLine');
+      let parRightLine = document.getElementById('parRightLine');
+      let holeLeftLine = document.getElementById('holeLeftLine');
+      let holeRightLine = document.getElementById('holeRightLine');
+
+      // Clear all slots first
+      [parLeftSlot, parRightSlot, holeLeftSlot, holeRightSlot].forEach(slot => { if (slot) slot.innerHTML = ''; });
+      
+      // Hide all lines first
+      [parLeftLine, parRightLine, holeLeftLine, holeRightLine].forEach(line => { if (line) line.style.display = 'none'; });
+
+      if (mode === 'normal') {
+        // Centered layout: individual controls spaced on left and right margins
+        parLeftSlot.appendChild(btnParMinus);
+        parRightSlot.appendChild(btnParPlus);
+
+        holeLeftSlot.appendChild(btnPrev);
+        holeRightSlot.appendChild(btnNext);
+      } else if (mode === 'left') {
+        // Left Ergonomic: grouped controls on the left margin, connected to centered text
+        parLeftSlot.appendChild(parBtnGroup);
+        parBtnGroup.appendChild(btnParMinus);
+        parBtnGroup.appendChild(btnParPlus);
+
+        holeLeftSlot.appendChild(holeNavButtons);
+        holeNavButtons.appendChild(btnPrev);
+        holeNavButtons.appendChild(btnNext);
+
+        parLeftLine.style.display = 'block';
+        holeLeftLine.style.display = 'block';
+      } else if (mode === 'right') {
+        // Right Ergonomic: grouped controls on the right margin, connected to centered text
+        parRightSlot.appendChild(parBtnGroup);
+        parBtnGroup.appendChild(btnParMinus);
+        parBtnGroup.appendChild(btnParPlus);
+
+        holeRightSlot.appendChild(holeNavButtons);
+        holeNavButtons.appendChild(btnPrev);
+        holeNavButtons.appendChild(btnNext);
+
+        parRightLine.style.display = 'block';
+        holeRightLine.style.display = 'block';
+      }
+      updateDisplay();
+    }
+
+    function updateDisplay() {
+      saveState();
+      let flairDisplay = document.getElementById('holeFlairDisplay');
+      if (flairDisplay) {
+        flairDisplay.innerText = titleFlair || '';
+      }
+      let numDisplay = document.getElementById('holeNumberDisplay');
+      if (numDisplay) {
+        numDisplay.innerText = currentHole;
+      }
+      let parDisplay = document.getElementById('parDisplay');
+      if (parDisplay) {
+        parDisplay.innerText = pars[currentHole - 1];
+      }
+      let list = document.getElementById('playerScoresList'); list.innerHTML = '';
+
+      players.forEach((p, idx) => {
+        let s = p.scores[currentHole - 1];
+        
+        let played = p.scores.filter(v => v !== null);
+        let playedPar = pars.filter((_, i) => p.scores[i] !== null).reduce((a, b) => a + b, 0);
+        let throws = played.reduce((a, b) => a + b, 0);
+        let diff = throws - playedPar;
+        let dStr = played.length === 0 ? "E" : (diff === 0 ? "E" : (diff > 0 ? `+${diff}` : diff));
+        let dColor = played.length === 0 ? 'var(--text)' : getOutcomeColor(diff);
+
+        let runPlayed = p.scores.slice(0, currentHole).filter(v => v !== null);
+        let runPar = pars.slice(0, currentHole).filter((_, i) => p.scores[i] !== null).reduce((a, b) => a + b, 0);
+        let runThrows = runPlayed.reduce((a, b) => a + b, 0);
+        let runDiff = runThrows - runPar;
+        let runStr = runPlayed.length === 0 ? "E" : (runDiff === 0 ? "E" : (runDiff > 0 ? `+${runDiff}` : runDiff));
+        let runColor = runPlayed.length === 0 ? 'var(--text)' : getOutcomeColor(runDiff);
+
+        let display = s !== null ? s : pars[currentHole - 1], pColor = getPlayerColor(idx);
+        let pFlair = p.flair || '';
+        
+        let totalHTML = `
+          <div style="font-size:0.85rem; line-height:1.35; color:var(--subtext);">
+            <div>Thru Hole ${currentHole}: <strong style="color:${runColor};">${runStr} (${runThrows})</strong></div>
+            <div style="font-size:0.75rem; opacity:0.8;">Full Round: <strong style="color:${dColor};">${dStr} (${throws})</strong></div>
+          </div>
+        `;
+
+        if (handMode === 'left') { 
+          /* Left Ergonomic: - on outer left edge, + closer toward the score display */
+          list.innerHTML += `
+            <div class="card player-row row ergonomic-left">
+              <div class="score-cluster">
+                <button class="touch-btn" onclick="adjustPlayerScore(${idx}, -1)">-</button>
+                <button class="touch-btn" onclick="adjustPlayerScore(${idx}, 1)">+</button>
+                <span onclick="setParScore(${idx})" style="font-size: 2.8rem;" class="score-tap ${s === null ? 'unplayed' : ''}">${display}</span>
+              </div>
+              <div style="text-align:right; flex:1; margin-left: 12px;">
+                <span style="font-weight:bold; color:${pColor}; font-size:1.25rem;">${pFlair} ${p.name}</span><br>${totalHTML}
+              </div>
+            </div>`; 
+        } else if (handMode === 'right') { 
+          list.innerHTML += `
+            <div class="card player-row row ergonomic-right">
+              <div style="text-align:left; flex:1;">
+                <span style="font-weight:bold; color:${pColor}; font-size:1.25rem;">${pFlair} ${p.name}</span><br>${totalHTML}
+              </div>
+              <div class="score-cluster">
+                <span onclick="setParScore(${idx})" style="font-size: 2.8rem;" class="score-tap ${s === null ? 'unplayed' : ''}">${display}</span>
+                <button class="touch-btn" onclick="adjustPlayerScore(${idx}, -1)">-</button>
+                <button class="touch-btn" onclick="adjustPlayerScore(${idx}, 1)">+</button>
+              </div>
+            </div>`; 
+        } else { 
+          list.innerHTML += `
+            <div class="card player-row">
+              <div class="row">
+                <span style="font-weight:bold; color:${pColor}; font-size:1.25rem;">${pFlair} ${p.name}</span>${totalHTML}
+              </div>
+              <div class="row" style="justify-content: space-around; margin-top: 10px;">
+                <button class="touch-btn" onclick="adjustPlayerScore(${idx}, -1)">-</button>
+                <span onclick="setParScore(${idx})" style="font-size: 3.2rem;" class="score-tap ${s === null ? 'unplayed' : ''}">${display}</span>
+                <button class="touch-btn" onclick="adjustPlayerScore(${idx}, 1)">+</button>
+              </div>
+            </div>`; 
+        }
+      });
+    }
+
+    function switchTab(t) { 
+      ['Track', 'Overview', 'Graph', 'Settings'].forEach(tab => { 
+        let elT = document.getElementById('tab' + tab), elB = document.getElementById('btnTab' + tab); 
+        if (elT) elT.classList.add('hidden'); 
+        if (elB) elB.classList.remove('active-tab'); 
+      }); 
+      let taT = document.getElementById('tab' + t), taB = document.getElementById('btnTab' + t); 
+      if (taT) taT.classList.remove('hidden'); 
+      if (taB) taB.classList.add('active-tab'); 
+      if (t === 'Overview') renderOverview(); 
+      if (t === 'Graph') renderGraph(); 
+      if (t === 'Settings') renderSettings(); 
+    }
+
+    function renderOverview() { 
+      let head = document.getElementById('overviewHeader'), body = document.getElementById('overviewBody'), foot = document.getElementById('overviewFooter'); 
+      head.innerHTML = '<th>Hole</th><th>Par</th>' + players.map((p, i) => `<th style="color:${p.color || getPlayerColor(i)}">${p.flair || ''} ${p.name}</th>`).join(''); 
+      body.innerHTML = ''; 
+      let pTot = pars.reduce((a, b) => a + b, 0); 
+      for (let i = 0; i < 18; i++) { 
+        let parStepper = `
+          <div class="table-par-control">
+            <button class="table-par-btn" onclick="adjustHoleParOverview(${i}, -1)">-</button>
+            <span class="table-par-val">${pars[i]}</span>
+            <button class="table-par-btn" onclick="adjustHoleParOverview(${i}, 1)">+</button>
+          </div>
+        `;
+        let row = `<tr><td>${i + 1}</td><td>${parStepper}</td>`; 
+        players.forEach(p => { 
+          let score = p.scores[i]; 
+          if (score === null) row += `<td class="unplayed">-</td>`; 
+          else { 
+            let d = score - pars[i], c = getOutcomeColor(d); 
+            row += `<td>${score} <span style="font-size:0.8rem; font-weight:bold; color:${c};">${(d===0?"E":d>0?"+"+d:d)}</span></td>`; 
+          } 
+        }); 
+        row += '</tr>'; 
+        body.innerHTML += row; 
+      } 
+      let fRow = `<tr><td>TOT</td><td>${pTot}</td>`; 
+      players.forEach(p => { 
+        let plays = p.scores.filter(s => s !== null), t = plays.reduce((a, b) => a + b, 0), d = t - pars.filter((_, i) => p.scores[i] !== null).reduce((a, b) => a + b, 0); 
+        let totColor = plays.length === 0 ? 'var(--text)' : getOutcomeColor(d);
+        fRow += `<td>${t} <span style="font-size:0.8rem; font-weight:bold; color:${totColor};">${(plays.length===0?"E":d===0?"E":d>0?"+"+d:d)}</span></td>`; 
+      }); 
+      fRow += `</tr>`; 
+      foot.innerHTML = fRow; 
+    }
+
+    function setGraphMode(m) { 
+      graphMode = m; 
+      document.getElementById('btnModeRel').className = m === 'relative' ? 'primary' : ''; 
+      document.getElementById('btnModeCum').className = m === 'cumulative' ? 'primary' : ''; 
+      renderGraph(); 
+    }
+
+    function renderGraph() { 
+      let svg = document.getElementById('graphSvg'); 
+      svg.innerHTML = ''; 
+      let showG = document.getElementById('chkGrid').checked, showL = document.getElementById('chkLabels').checked, showN = document.getElementById('chkNames').checked;
+      let w = 500, h = 280, pad = 36; 
+      
+      // Synchronize graphRenderOrder with the active players roster (handling additions/removals)
+      let playerIds = players.map(p => p.id);
+      graphRenderOrder = graphRenderOrder.filter(id => playerIds.includes(id));
+      playerIds.forEach(id => {
+        if (!graphRenderOrder.includes(id)) {
+          graphRenderOrder.push(id);
+        }
+      });
+
+      let series = graphRenderOrder.map(pId => { 
+        let p = players.find(player => player.id === pId);
+        let idx = players.findIndex(player => player.id === pId); // Original index for stable color mapping
+        
+        let data = [], run = 0; 
+        for (let i = 0; i < 18; i++) { 
+          let s = p.scores[i]; 
+          if (s === null) data.push(null); 
+          else { 
+            if (graphMode === 'relative') { run += (s - pars[i]); data.push(run); } 
+            else { run += s; data.push(run); } 
+          } 
+        } 
+        return { id: p.id, name: p.name, flair: p.flair || '', color: p.color || getPlayerColor(idx), raw: p.scores, data: data }; 
+      }); 
+
+      let activeSeries = series.filter(s => !hiddenPlayers[s.id]);
+
+      let allV = activeSeries.flatMap(s => s.data.filter(v => v !== null)); 
+      if (allV.length === 0) allV = [0, 1]; 
+      let maxV = Math.max(...allV, 1), minV = Math.min(...allV, 0); 
+
+      function getY(v) { return h - pad - ((v - minV) / (maxV - minV || 1)) * (h - 2 * pad); } 
+      function getX(i) { return pad + (i / 17) * (w - 2 * pad); } 
+
+      // Render Gridlines and/or Y-Axis Labels
+      let steps = 6; 
+      for (let i = 0; i <= steps; i++) { 
+        let val = Math.round(minV + (i * (maxV - minV) / steps)), y = getY(val); 
+        if (showG) {
+          svg.innerHTML += `<line x1="${pad}" y1="${y}" x2="${w-12}" y2="${y}" stroke="var(--border)" stroke-dasharray="2" />`; 
+        }
+        if (showL) {
+          svg.innerHTML += `<text x="${pad-6}" y="${y+4}" fill="var(--subtext)" font-size="10" text-anchor="end">${val > 0 && graphMode === 'relative' ? '+' + val : val}</text>`;
+        }
+      } 
+      if (showG) {
+        for (let i = 0; i < 18; i += 2) {
+          let x = getX(i);
+          svg.innerHTML += `<line x1="${x}" y1="${pad-10}" x2="${x}" y2="${h-pad}" stroke="var(--border)" stroke-dasharray="1 3" />`;
+        }
+      } 
+
+      activeSeries.forEach((s, idx) => { 
+        let pts = s.data.map((v, i) => v !== null ? `${getX(i)},${getY(v)}` : null).filter(p => p !== null); 
+        if (pts.length > 1) svg.innerHTML += `<polyline fill="none" stroke="${s.color}" stroke-width="2.5" points="${pts.join(' ')}" />`; 
+        
+        s.data.forEach((v, i) => { 
+          if (v !== null) { 
+            let x = getX(i), y = getY(v), nC = getStrokeColor(s.raw[i], pars[i]); 
+            svg.innerHTML += `<circle cx="${x}" cy="${y}" r="5" fill="${nC}" stroke="${s.color}" stroke-width="2" />`; 
+            
+            let renderLabel = false;
+            if (showL) {
+              if (graphMode === 'cumulative') {
+                renderLabel = true;
+              } else if (graphMode === 'relative' && s.raw[i] !== pars[i]) {
+                renderLabel = true;
+              }
+            }
+
+            if (renderLabel) {
+              // Alternating vertical stack offset by index to prevent overlaps on identical scores
+              let yOffset = (idx % 2 === 0) ? -9 - (Math.floor(idx / 2) * 11) : 15 + (Math.floor(idx / 2) * 11);
+              svg.innerHTML += `<text x="${x}" y="${y + yOffset}" fill="${s.color}" font-size="10" font-weight="bold" text-anchor="middle">${v > 0 && graphMode === 'relative' ? '+' + v : v}</text>`;
+            }
+          } 
+        }); 
+      }); 
+
+      // Render Legend (Always Visible)
+      let kY = 14, kX = pad; 
+      series.forEach(s => { 
+        let isDisabled = hiddenPlayers[s.id];
+        let opacity = isDisabled ? '0.35' : '1.0';
+        
+        let displayName = showN ? `${s.flair}${s.name}` : (s.flair || '');
+        let itemWidth = showN ? (displayName.length * 7.5) + 32 : (displayName ? 12 : 0) + 24;
+
+        if (kX + itemWidth > w - 12) {
+          kX = pad;
+          kY += 18;
+        }
+
+        svg.innerHTML += `
+          <g class="legend-item ${isDisabled ? 'disabled-player' : ''}" onclick="togglePlayerGraph(${s.id})">
+            <rect x="${kX}" y="${kY}" width="12" height="12" fill="${s.color}" rx="3" opacity="${opacity}" />
+            <text x="${kX+16}" y="${kY+10}" fill="var(--text)" font-size="11" font-weight="bold" opacity="${opacity}">${displayName}</text>
+          </g>
+        `; 
+        kX += itemWidth + 12; 
+      }); 
+    }
+
+    function renderEmojiGrids() {
+      let titleGrid = document.getElementById('titleEmojiGrid');
+      if (titleGrid) {
+        titleGrid.innerHTML = availableFlairs.map(emoji => 
+          `<div class="emoji-item ${titleFlair === emoji ? 'selected-emoji' : ''}" onclick="setTitleFlair('${emoji}')">${emoji}</div>`
+        ).join('');
+      }
+    }
+
+    function renderSettings() { 
+      updateSettingsUI();
+      renderEmojiGrids();
+
+      // 1. Render Roster list (text inputs, color pickers, and delete buttons)
+      let rosterList = document.getElementById('settingsPlayerList'); 
+      if (rosterList) {
+        rosterList.innerHTML = players.map((p, i) => `
+          <div style="display:flex; gap:6px; margin-bottom:8px; align-items:center;">
+            <input type="color" value="${p.color || getPlayerColor(i)}" onchange="updatePlayerColor(${i}, this.value)" style="width: 40px; height: 40px; border:none; background:transparent; cursor:pointer;" title="Choose player name color">
+            <input type="text" value="${p.name}" onchange="updatePlayerName(${i}, this.value)" style="flex:1; height: 40px;" placeholder="Player Name">
+            ${players.length > 1 ? `<button onclick="removePlayer(${i})" style="min-height:40px; background:#331111; color:#ff6666; border:1px solid #662222; border-radius:10px; padding:0 12px; font-size:0.85rem;" title="Delete Player from Scorecard">🗑️ Remove</button>` : ''}
+          </div>
+        `).join('');
+      }
+
+      // 2. Render Player Flairs lists (name header, current flair preview/input, and emoji grid)
+      let flairsContainer = document.getElementById('playerFlairsContainer');
+      if (flairsContainer) {
+        flairsContainer.innerHTML = players.map((p, i) => `
+          <div style="margin-bottom:12px; padding:10px; border:1px solid var(--border); border-radius:10px; background:rgba(0,0,0,0.15);">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+              <span style="font-weight:bold; color:${p.color || getPlayerColor(i)}; font-size:1rem;">${p.name}'s Roster Flair</span>
+              <input type="text" value="${p.flair || ''}" placeholder="Type Emoji" onchange="updatePlayerFlair(${i}, this.value)" style="max-width:110px; text-align:center; font-size:1.1rem; height:36px; padding:2px;">
+            </div>
+            <div class="emoji-grid" style="margin:0; max-height:80px;">
+              ${availableFlairs.map(emoji => `<div class="emoji-item ${p.flair === emoji ? 'selected-emoji' : ''}" onclick="updatePlayerFlair(${i}, '${emoji}')">${emoji}</div>`).join('')}
+            </div>
+          </div>
+        `).join('');
+      }
+    }
+
+    function addPlayer() { 
+      let input = document.getElementById('newPlayerName'), name = input.value.trim() || `Player ${players.length + 1}`; 
+      let defaultFlair = theme === 'spooky' ? spookyFlairs[players.length % spookyFlairs.length] : availableFlairs[players.length % availableFlairs.length];
+      players.push({ id: Date.now(), name: name, flair: defaultFlair, scores: Array(18).fill(null), color: null }); 
+      input.value = ''; 
+      saveState(); 
+      renderSettings(); 
+      updateDisplay(); 
+    }
+
+    function updatePlayerName(i, v) { players[i].name = v.trim() || `Player ${i + 1}`; saveState(); updateDisplay(); }
+    function updatePlayerColor(i, c) { players[i].color = c; saveState(); renderSettings(); updateDisplay(); }
+    function updatePlayerFlair(i, f) {
+      if (players[i].flair === f) {
+        players[i].flair = '';
+      } else {
+        players[i].flair = f;
+      }
+      saveState();
+      renderSettings();
+      updateDisplay();
+    }
+    function removePlayer(i) { if (players.length > 1) { delete hiddenPlayers[players[i].id]; players.splice(i, 1); saveState(); renderSettings(); updateDisplay(); } }
+    
+    function exportMasterRound() { 
+      // Bundle our textual state with our full-resolution image cache from IndexedDB
+      let obj = { 
+        format: "dgpro",
+        date: new Date().toISOString(), 
+        course: document.getElementById('courseName').value, 
+        pars: pars, 
+        players: players,
+        notes: roundNotes,
+        theme: theme,
+        handMode: handMode,
+        highlightOverride: highlightOverride,
+        titleFlair: titleFlair,
+        // Map database entities back to simple base64 strings for backward compatibility
+        images: roundImages.map(img => img.data)
+      }; 
+      let data = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(obj, null, 2));
+      let elem = document.createElement('a'); 
+      elem.setAttribute("href", data); 
+      elem.setAttribute("download", `dg_round_${new Date().toISOString().slice(0,10)}.dgpro`); 
+      document.body.appendChild(elem); 
+      elem.click(); 
+      elem.remove(); 
+    }
+
+    function exportCSVData() {
+      let course = document.getElementById('courseName').value;
+      let dateStr = new Date().toISOString().slice(0, 10);
+      let pTot = pars.reduce((a, b) => a + b, 0);
+
+      function escapeCSV(val) {
+        let str = String(val !== null && val !== undefined ? val : '');
+        if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+          str = '"' + str.replace(/"/g, '""') + '"';
+        }
+        return str;
+      }
+
+      let csvRows = [];
+      csvRows.push([escapeCSV('Course'), escapeCSV(course)]);
+      csvRows.push([escapeCSV('Date'), escapeCSV(dateStr)]);
+      if (roundNotes) {
+        csvRows.push([escapeCSV('Notes'), escapeCSV(roundNotes)]);
+      }
+      csvRows.push([]); // Spacer row
+
+      // Scorecard Header
+      let header = ['Hole', 'Par'];
+      players.forEach(p => {
+        let nameWithFlair = (p.flair ? p.flair + ' ' : '') + p.name;
+        header.push(nameWithFlair);
+      });
+      csvRows.push(header.map(escapeCSV));
+
+      // Hole Rows 1-18
+      for (let i = 0; i < 18; i++) {
+        let row = [(i + 1), pars[i]];
+        players.forEach(p => {
+          row.push(p.scores[i] !== null ? p.scores[i] : '-');
+        });
+        csvRows.push(row.map(escapeCSV));
+      }
+
+      // Total Row
+      let totalRow = ['TOT', pTot];
+      players.forEach(p => {
+        let played = p.scores.filter(s => s !== null);
+        let total = played.reduce((a, b) => a + b, 0);
+        let playedPar = pars.filter((_, i) => p.scores[i] !== null).reduce((a, b) => a + b, 0);
+        let diff = total - playedPar;
+        let diffStr = played.length === 0 ? "E" : (diff === 0 ? "E" : (diff > 0 ? `+${diff}` : diff));
+        totalRow.push(`${total} (${diffStr})`);
+      });
+      csvRows.push(totalRow.map(escapeCSV));
+
+      let csvContent = "data:text/csv;charset=utf-8," + csvRows.map(r => r.join(',')).join('\n');
+      let elem = document.createElement('a');
+      elem.setAttribute("href", encodeURI(csvContent));
+      elem.setAttribute("download", `dg_scorecard_${dateStr}.csv`);
+      document.body.appendChild(elem);
+      elem.click();
+      elem.remove();
+    }
+
+    function importUnifiedFile(e) {
+      let file = e.target.files[0];
+      if (!file) return;
+
+      let fileName = file.name.toLowerCase();
+      let reader = new FileReader();
+
+      if (fileName.endsWith('.csv')) {
+        // Handle CSV import using legacy robust parser
+        reader.onload = function(evt) {
+          try {
+            let text = evt.target.result;
+            let lines = text.split(/\r?\n/).map(l => l.trim()).filter(l => l.length > 0);
+            
+            let parsedCourse = null;
+            let parsedNotes = '';
+            let headerIdx = -1;
+
+            function parseCSVLine(line) {
+              let res = [], cur = '', inQuotes = false;
+              for (let i = 0; i < line.length; i++) {
+                let c = line[i];
+                if (c === '"') {
+                  if (inQuotes && line[i+1] === '"') { cur += '"'; i++; }
+                  else { inQuotes = !inQuotes; }
+                } else if (c === ',' && !inQuotes) {
+                  res.push(cur.trim()); cur = '';
+                } else {
+                  cur += c;
+                }
+              }
+              res.push(cur.trim());
+              return res;
+            }
+
+            for (let i = 0; i < lines.length; i++) {
+              let cells = parseCSVLine(lines[i]);
+              if (cells[0] === 'Course' && cells[1]) parsedCourse = cells[1];
+              if (cells[0] === 'Notes' && cells[1]) parsedNotes = cells[1];
+              if (cells[0] === 'Hole' && cells[1] === 'Par') {
+                headerIdx = i;
+                break;
+              }
+            }
+
+            if (headerIdx === -1) {
+              alert("Invalid CSV format: Missing 'Hole,Par' scorecard header.");
+              return;
+            }
+
+            let headerCells = parseCSVLine(lines[headerIdx]);
+            let playerHeaders = headerCells.slice(2);
+            if (playerHeaders.length === 0) {
+              alert("No players found in CSV file.");
+              return;
+            }
+
+            let newPars = Array(18).fill(3);
+            let newPlayers = playerHeaders.map((pStr, idx) => {
+              let flair = '', name = pStr;
+              let emojiMatch = pStr.match(/^(\p{Extended_Pictographic}|\p{Emoji_Presentation})\s*(.*)$/u);
+              if (emojiMatch) {
+                flair = emojiMatch[1];
+                name = emojiMatch[2] || pStr;
+              }
+              return { id: Date.now() + idx, name: name, flair: flair, scores: Array(18).fill(null) };
+            });
+
+            for (let i = headerIdx + 1; i < lines.length; i++) {
+              let cells = parseCSVLine(lines[i]);
+              let holeNum = parseInt(cells[0]);
+              if (!isNaN(holeNum) && holeNum >= 1 && holeNum <= 18) {
+                let hIdx = holeNum - 1;
+                let parVal = parseInt(cells[1]);
+                if (!isNaN(parVal)) newPars[hIdx] = parVal;
+
+                for (let pI = 0; pI < newPlayers.length; pI++) {
+                  let valStr = cells[pI + 2];
+                  if (valStr && valStr !== '-') {
+                    let s = parseInt(valStr);
+                    if (!isNaN(s)) newPlayers[pI].scores[hIdx] = s;
+                  }
+                }
+              }
+            }
+
+            if (parsedCourse) document.getElementById('courseName').value = parsedCourse;
+            if (parsedNotes) {
+              roundNotes = parsedNotes;
+              document.getElementById('roundNotes').value = roundNotes;
+            }
+            pars = newPars;
+            players = newPlayers;
+            hiddenPlayers = {};
+
+            // Clear photos on spreadsheet import since spreadsheets do not hold binary attachments
+            clearAllPhotosFromDB().then(() => {
+              roundImages = [];
+              renderMediaGrid();
+              saveState();
+              updateDisplay();
+              alert("CSV Spreadsheet imported successfully!");
+            });
+          } catch (err) {
+            alert("Failed to parse CSV file.");
+          }
+        };
+        reader.readAsText(file);
+      } else {
+        // Handle .dgpro and .json Master package import
+        reader.onload = function(evt) {
+          try {
+            let data = JSON.parse(evt.target.result);
+            if (data.course) document.getElementById('courseName').value = data.course;
+            if (Array.isArray(data.pars)) pars = data.pars;
+            if (Array.isArray(data.players)) players = data.players;
+            if (data.notes !== undefined) {
+              roundNotes = data.notes;
+              document.getElementById('roundNotes').value = roundNotes;
+            }
+            
+            // Restore customization settings if present in the imported master file
+            if (data.theme) {
+              theme = data.theme;
+              localStorage.setItem('dg_theme', data.theme);
+              applyTheme();
+            }
+            if (data.handMode) {
+              handMode = data.handMode;
+              localStorage.setItem('dg_hand', data.handMode);
+              setHandedness(data.handMode);
+            }
+            if (data.highlightOverride !== undefined) {
+              highlightOverride = data.highlightOverride;
+              if (data.highlightOverride) localStorage.setItem('dg_highlight', data.highlightOverride);
+              else localStorage.removeItem('dg_highlight');
+              applyTheme();
+            }
+            if (data.titleFlair !== undefined) {
+              titleFlair = data.titleFlair;
+              localStorage.setItem('dg_title_flair', data.titleFlair);
+              let flairInput = document.getElementById('titleFlairInput');
+              if (flairInput) flairInput.value = data.titleFlair;
+              let preview = document.getElementById('titleFlairPreview');
+              if (preview) {
+                preview.innerText = data.titleFlair || 'None';
+                preview.style.opacity = data.titleFlair ? '1' : '0.4';
+                preview.style.fontSize = data.titleFlair ? '1.8rem' : '0.85rem';
+                preview.style.color = data.titleFlair ? 'var(--text)' : 'var(--subtext)';
+              }
+              renderEmojiGrids();
+            }
+            
+            hiddenPlayers = {};
+            saveState();
+
+            // Clear photos DB, then store imported Base64 images asynchronously
+            clearAllPhotosFromDB().then(() => {
+              roundImages = [];
+              if (Array.isArray(data.images) && data.images.length > 0) {
+                let savePromises = data.images.map(imgBase64 => {
+                  return savePhotoToDB(imgBase64).then(id => {
+                    roundImages.push({ id: id, data: imgBase64 });
+                  });
+                });
+                return Promise.all(savePromises);
+              }
+            }).then(() => {
+              renderMediaGrid();
+              updateDisplay();
+              alert("Master round file imported successfully!");
+            }).catch(err => {
+              console.error("IndexedDB import error:", err);
+              renderMediaGrid();
+              updateDisplay();
+              alert("Text data imported, but photo attachments could not be saved to IndexedDB.");
+            });
+          } catch (err) {
+            alert("Failed to parse master round file.");
+          }
+        };
+        reader.readAsText(file);
+      }
+      e.target.value = '';
+    }
+
+    function resetRound() { 
+      if (confirm("Reset scores and notes?")) { 
+        players.forEach(p => p.scores = Array(18).fill(null)); 
+        currentHole = 1; 
+        hiddenPlayers = {}; 
+        roundNotes = '';
+        document.getElementById('roundNotes').value = '';
+        clearAllPhotosFromDB().then(() => {
+          roundImages = [];
+          renderMediaGrid();
+          saveState(); 
+          updateDisplay(); 
+          switchTab('Track'); 
+        });
+      } 
+    }
+
+    loadState();
+    updateDisplay();
+  </script>
+</body>
+</html>

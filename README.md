@@ -70,6 +70,21 @@ To preserve developer ease and keep release histories perfectly separated, our w
 
 ---
 
+## 📲 Android Alpha Testing (Use at Own Risk)
+
+An installable Android package is available for pre-release testing!
+
+### ⚠️ Disclaimer
+> **This is a pre-release Alpha version under active development.** Local database corruption or unexpected round score crashes may occur. Use on the course at your own risk!
+
+### How to Install:
+1. Navigate to the **Releases** section on the right side of this GitHub repository.
+2. Download the `app-debug.apk` file directly to your Android device.
+3. Locate and open the downloaded APK file. Your device will prompt you to **"Allow installation from unknown sources"** (since the application is side-loaded and not yet registered on the Google Play Store).
+4. Approve the prompt, tap install, launch the app, and start vibe-scoring!
+
+---
+
 ## 🚀 Future Development Hand-off
 To hand off development to future AI agents or other developers, we have established `./GEMINI.md` as our living rulebook. It specifies:
 1. Our zero-dependency, single-file architectural boundaries.

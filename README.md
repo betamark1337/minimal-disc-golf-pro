@@ -41,10 +41,10 @@ Here is our proposed development roadmap. We invite you to review, alter, and ap
 
 * [x] **IndexedDB Master Storage (v1.1.0):** Native zero-dependency browser database storing 100% full-resolution, uncompressed photos with zero quality loss.
 * [x] **Unified .dgpro Package System (v1.1.0):** Unify JSON, CSV, and master packages under a single prominent file processor and 2x2 settings action grid.
-* [ ] **Local Course Catalog (v1.2.0):** Create and save multiple course layouts (e.g., "Chippewa Banks - Longs" vs "Shorts") with custom pars per layout so you don't have to redefine them.
-* [ ] **Multi-Round Logging (v1.2.0):** Support saving and loading past rounds locally. Introduce a simple "Past Rounds" history shelf on the Settings tab.
-* [ ] **Fairway Stats Dashboard (v1.2.0):** Track metrics like *Birdie Rate*, *Scrambling %*, and *Par-3 Scoring Averages* directly inside the Overview panel.
-* [ ] **Quick-Column Overview Scoring (v1.2.0):** Tapping a player's name in the Overview panel activates direct +/- stepper buttons for their score column, letting you adjust recorded scores easily. Only one column is adjustable at a time. Tap 'PAR' to go back to editing par values.
+* [x] **Local Course Catalog (v1.2.0):** Create and save multiple course layouts (e.g., "Chippewa Banks - Longs" vs "Shorts") with custom pars per layout so you don't have to redefine them.
+* [x] **Multi-Round Logging (v1.2.0):** Support saving and loading past rounds locally. Introduce a simple "Past Rounds" history shelf on the Settings tab.
+* [x] **Fairway Stats Dashboard (v1.2.0):** Track metrics like *Birdie Rate*, *Scrambling %*, and *Par-3 Scoring Averages* directly inside the Overview panel.
+* [x] **Quick-Column Overview Scoring (v1.2.0):** Tapping a player's name in the Overview panel activates direct +/- stepper buttons for their score column, letting you adjust recorded scores easily. Only one column is adjustable at a time. Tap 'PAR' to go back to editing par values.
 * [x] **Help & Pro-tips Panel (v1.2.0):** Added a beautiful, integrated user guide describing advanced features, including line re-ordering, thumb ergonomics, and upcoming column-focused scoring.
 * [x] **Council Easter Egg System (v1.2.0):** Embedded a hidden, flying-saucer (`🛸`) button inside Settings that launches a celebratory "Thank You" transmission.
 

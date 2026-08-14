@@ -6,15 +6,15 @@ Minimal Disc Golf Pro is a high-speed, zero-dependency, ultra-lightweight scorec
 
 ---
 
-## ⚡ The Vibe Coding Declaration
+## ⚡ Development & Technical Approach
 
-We are fully forward with the fact that this application is **Vibe Coded**. 
+This application is built using a collaborative human-AI development approach (often referred to as **Vibe Coding**) leveraging automated AI code generation (via Gemini CLI agents) under the close guidance and functional testing of the project owner.
 
-Vibe Coding is a philosophy of software development that prioritizes:
-- **Velocity over Bureaucracy:** We code with the speed of thought. No bloatware, no over-engineered frameworks, and no complex build pipelines.
-- **Pure Aesthetic Intuition:** If a transition feels good, it stays. If a color scheme goes hard, it gets added.
-- **Direct Developer-User Empathy:** We build features because they solve real, immediate physical problems on the course—not because they satisfy a product management checklist.
-- **Zero-Dependency Sovereignty:** The source is a clean, single-file HTML/CSS/JS experience. It cannot break because of dependency rot. You can download the file, double-click it, and it will run forever on any device.
+### Key Technical Aspects:
+- **AI-Assisted Assembly:** The codebase was generated, restructured, and expanded by AI-powered developer agents responding to iterative human feedback and on-course requirements.
+- **Not Fully Human-Audited:** Because much of the logic, layout calculations, and styling adjustments were written automatically, not all code paths have been manually audited by a human software engineer. Use the application on-course with the understanding that local database schemas and complex edge cases are generated programmatically.
+- **Zero-Dependency, Single-File Architecture:** The entire web frontend consists of a single `index.html` file combining all DOM structures, layout styling (Vanilla CSS), and offline runtime logic (Vanilla JS). This completely eliminates dependency rot, NPM build steps, or CDN latency, ensuring total offline reliability.
+- **Native Android Bridging:** Leverages **Capacitor** to wrap the single-file web client inside a native Android WebView container, allowing simple `.apk` packaging without native Java/Kotlin rewrites.
 
 ---
 

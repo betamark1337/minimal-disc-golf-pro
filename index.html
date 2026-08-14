@@ -25,6 +25,8 @@
       --bg: #121212; --card: #1e1e1e; --accent: #2979ff; --text: #ffffff;
       --subtext: #a0a0a0; --border: #333333; --btn-bg: #2a2a2a; --disabled: #555555;
       --summary-border: #444444;
+      --app-scale: 1.0;
+      --font-scale: 1.0;
     }
     
     /* OLED Themes */
@@ -55,7 +57,7 @@
       max-width: 550px; 
       margin-left: auto; 
       margin-right: auto; 
-      font-size: 1.05rem; 
+      font-size: calc(1.05rem * var(--font-scale, 1.0)); 
     }
 
     button, .score-tap, .color-swatch, .emoji-item, .collapse-header, .table-par-btn, .legend-item {
@@ -76,7 +78,7 @@
       color: var(--accent); 
       font-size: 1.5rem; 
       font-weight: bold; 
-      text-align: center; \
+      text-align: center; 
       width: 100%; 
       padding: 6px; 
       margin-bottom: 4px; 
@@ -86,12 +88,12 @@
     .card { background: var(--card); border-radius: 16px; padding: 16px; margin-bottom: 12px; border: 1px solid var(--border); width: 100%; }
     .row { display: flex; justify-content: space-between; align-items: center; margin: 8px 0; }
     
-    button { background: var(--btn-bg); color: var(--text); border: 1px solid var(--border); border-radius: 12px; font-size: 1.1rem; font-weight: bold; min-height: 52px; padding: 10px 16px; touch-action: manipulation; cursor: pointer; }
+    button { background: var(--btn-bg); color: var(--text); border: 1px solid var(--border); border-radius: 12px; font-size: calc(1.1rem * var(--font-scale, 1.0)); font-weight: bold; min-height: calc(52px * var(--app-scale, 1.0)); padding: 10px 16px; touch-action: manipulation; cursor: pointer; }
     button:active { transform: scale(0.96); opacity: 0.9; }
     button.primary { background: var(--accent); color: #000; border: none; }
     
-    .touch-btn { min-height: 58px; min-width: 58px; font-size: 1.6rem; }
-    .par-btn { min-height: 48px; min-width: 48px; font-size: 1.3rem; padding: 0; }
+    .touch-btn { min-height: calc(58px * var(--app-scale, 1.0)); min-width: calc(58px * var(--app-scale, 1.0)); font-size: calc(1.6rem * var(--font-scale, 1.0)); }
+    .par-btn { min-height: calc(48px * var(--app-scale, 1.0)); min-width: calc(48px * var(--app-scale, 1.0)); font-size: calc(1.3rem * var(--font-scale, 1.0)); padding: 0; }
 
     .tab-nav { display: flex; gap: 6px; margin-bottom: 12px; width: 100%; }
     .tab-nav button { flex: 1; font-size: 0.95rem; padding: 10px 2px; }
@@ -279,11 +281,21 @@
 </head>
 <body>
 
-  <div class="header"><input type="text" id="courseName" class="course-input" value="Chippewa Banks Disc Golf Course"></div>
+  <div class="header" style="display:flex; flex-direction:column; gap:6px; align-items:center;">
+    <input type="text" id="courseName" class="course-input" value="Chippewa Banks Disc Golf Course" onchange="saveState()" style="border-bottom: 2px solid var(--border); margin-bottom: 0;">
+    
+    <!-- Quick Course Preset Load Select -->
+    <div style="display:flex; gap:8px; width:100%; max-width:440px; margin-top: 4px; padding: 0 4px;">
+      <select id="quickCourseCatalogSelect" onchange="loadCoursePreset(this.value)" style="flex:1; min-height:38px; height:38px; font-size:0.85rem; padding:0 8px; border-radius:10px;" title="Quick select course preset">
+        <option value="" disabled selected>Load Saved Preset...</option>
+      </select>
+      <button onclick="saveCoursePreset()" style="font-size:0.8rem; min-height:38px; height:38px; padding:0 12px; border-radius:10px; display:flex; align-items:center; gap:4px;" title="Save current layout as preset">💾 Save</button>
+    </div>
+  </div>
 
   <div class="tab-nav">
     <button id="btnTabTrack" class="active-tab" onclick="switchTab('Track')">Track</button>
-    <button id="btnTabOverview" onclick="switchTab('Overview')">Overview</button>
+    <button id="btnTabOverview" onclick="switchTab('Overview')">Card</button>
     <button id="btnTabGraph" onclick="switchTab('Graph')">Graph</button>
     <button id="btnTabSettings" onclick="switchTab('Settings')">Settings</button>
   </div>
@@ -303,25 +315,25 @@
   <div id="tabTrack">
     <div id="mainHoleCard" class="card" style="display:flex; flex-direction:column; gap:16px; padding: 16px 20px;">
       <!-- Par Row -->
-      <div id="cardParRow" style="display:flex; align-items:center; width:100%; min-height:48px; justify-content: space-between;">
+      <div id="cardParRow" style="display:flex; align-items:center; width:100%; min-height:calc(58px * var(--app-scale, 1.0)); justify-content: space-between;">
         <div id="parLeftSlot" style="display:flex; align-items:center; min-width: 58px;"></div>
         <div id="parLeftLine" style="flex:1; border-bottom:1px dashed var(--border); margin:0 12px; display:none;"></div>
         <div id="parCenterSlot" style="text-align:center; min-width:80px; display:flex; flex-direction:column; justify-content:center; flex-shrink: 0;">
           <span style="color:var(--subtext); font-size: 0.75rem; display:block; line-height: 1; font-weight: bold; letter-spacing: 0.5px;">PAR</span>
-          <strong id="parDisplay" style="font-size: 1.55rem; line-height: 1.1;">3</strong>
+          <strong id="parDisplay" style="font-size: calc(2.2rem * var(--font-scale, 1.0)); line-height: 1.0;">3</strong>
         </div>
         <div id="parRightLine" style="flex:1; border-bottom:1px dashed var(--border); margin:0 12px; display:none;"></div>
         <div id="parRightSlot" style="display:flex; align-items:center; min-width: 58px; justify-content: flex-end;"></div>
       </div>
 
       <!-- Hole Row -->
-      <div id="cardHoleRow" style="display:flex; align-items:center; width:100%; min-height:58px; justify-content: space-between;">
+      <div id="cardHoleRow" style="display:flex; align-items:center; width:100%; min-height:calc(72px * var(--app-scale, 1.0)); justify-content: space-between;">
         <div id="holeLeftSlot" style="display:flex; align-items:center; min-width: 58px;"></div>
         <div id="holeLeftLine" style="flex:1; border-bottom:1px dashed var(--border); margin:0 12px; display:none;"></div>
         <div id="holeCenterSlot" style="text-align:center; min-width:110px; display:flex; flex-direction:column; justify-content:center; align-items:center; flex-shrink: 0;">
           <span id="holeFlairDisplay" style="font-size: 1.25rem; line-height: 1; margin-bottom: 2px;"></span>
           <span style="color:var(--subtext); font-size: 0.75rem; display:block; line-height: 1; font-weight: bold; letter-spacing: 0.5px;">HOLE</span>
-          <strong id="holeNumberDisplay" style="font-size: 1.55rem; line-height: 1.1;">1</strong>
+          <strong id="holeNumberDisplay" style="font-size: calc(3.2rem * var(--font-scale, 1.0)); line-height: 1.0; font-weight: 900; color: var(--accent);">1</strong>
         </div>
         <div id="holeRightLine" style="flex:1; border-bottom:1px dashed var(--border); margin:0 12px; display:none;"></div>
         <div id="holeRightSlot" style="display:flex; align-items:center; min-width: 58px; justify-content: flex-end;"></div>
@@ -352,7 +364,7 @@
   </div>
 
   <div id="tabOverview" class="card hidden">
-    <h3 style="margin-top:0; font-size: 1.3rem;">Round Scorecard</h3>
+    <h3 style="margin-top:0; font-size: 1.3rem;" class="hidden">Round Scorecard</h3>
     <div style="overflow-x:auto; margin-bottom: 12px;"><table id="overviewTable"><thead><tr id="overviewHeader"><th>Hole</th><th>Par</th></tr></thead><tbody id="overviewBody"></tbody><tfoot id="overviewFooter"></tfoot></table></div>
     <div id="overviewStatsContainer"></div>
   </div>
@@ -366,158 +378,234 @@
     <div class="toggle-group"><label><input type="checkbox" id="chkGrid" checked onchange="renderGraph()"> Gridlines</label><label><input type="checkbox" id="chkLabels" checked onchange="renderGraph()"> Labels</label><label><input type="checkbox" id="chkNames" checked onchange="renderGraph()"> Names</label></div>
   </div>
 
-    <div id="tabSettings" class="card hidden">
-    <!-- 1st: Roster Management at the very top -->
-    <h3 style="font-size: 1.2rem; margin-top:0;">Roster Management</h3>
-    <div id="settingsPlayerList" style="margin-bottom: 12px;"></div>
-    <div style="display:flex; gap:8px; margin-bottom: 16px;">
-      <input type="text" id="newPlayerName" placeholder="New Player Name" style="flex:1;">
-      <button onclick="addPlayer()" style="font-size:0.9rem; padding: 0 16px;">Add Player</button>
-    </div>
+  <div id="tabSettings" class="card hidden">
+    <!-- Group 1: 📋 Course Setup & Roster -->
+    <div style="margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 12px;">
+      <div class="collapse-header" onclick="toggleSettingsSection('courseRoster')" style="padding: 4px 0;">
+        <h3 style="font-size: 1.25rem; display:flex; align-items:center; gap:8px;">📋 Course Setup & Roster</h3>
+        <span id="icon-courseRoster" class="collapse-icon">▾</span>
+      </div>
+      <div id="sec-courseRoster" style="margin-top: 12px;" class="hidden">
+        <!-- Sub-section 1: Roster Management -->
+        <div style="margin-bottom: 12px; border: 1px solid var(--border); padding: 12px; border-radius: 12px; background: rgba(0,0,0,0.12);">
+          <div class="collapse-header" onclick="toggleSubSection('rosterMgmt')" style="padding: 2px 0;">
+            <h4 style="font-size: 1.05rem; margin: 0; color: var(--accent); display:flex; align-items:center; gap:6px;">👥 Roster Management</h4>
+            <span id="icon-sub-rosterMgmt" class="collapse-icon">▾</span>
+          </div>
+          <div id="sub-rosterMgmt" style="margin-top: 12px;" class="hidden">
+            <div id="settingsPlayerList" style="margin-bottom: 12px;"></div>
+            <div style="display:flex; gap:8px; margin-bottom: 4px;">
+              <input type="text" id="newPlayerName" placeholder="New Player Name" style="flex:1; min-height:42px;">
+              <button onclick="addPlayer()" style="font-size:0.9rem; padding: 0 16px; min-height:42px;">Add</button>
+            </div>
+          </div>
+        </div>
 
-    <hr style="border-color: var(--border); margin: 24px 0;">
+        <!-- Sub-section 2: Default Par Setup -->
+        <div style="margin-bottom: 12px; border: 1px solid var(--border); padding: 12px; border-radius: 12px; background: rgba(0,0,0,0.12);">
+          <div class="collapse-header" onclick="toggleSubSection('defaultPar')" style="padding: 2px 0;">
+            <h4 style="font-size: 1.05rem; margin: 0; color: var(--accent); display:flex; align-items:center; gap:6px;">🕳️ Default Par Setup</h4>
+            <span id="icon-sub-defaultPar" class="collapse-icon">▾</span>
+          </div>
+          <div id="sub-defaultPar" style="margin-top: 12px;" class="hidden">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <div style="font-size:0.85rem; color: var(--subtext); padding-right:8px;">Overwrite all hole pars:</div>
+              <div class="toggle-group" style="margin:0; width:auto;">
+                <button onclick="setDefaultPar(3)" style="min-height:36px; padding:0 14px;">3</button>
+                <button onclick="setDefaultPar(4)" style="min-height:36px; padding:0 14px;">4</button>
+                <select onchange="setDefaultPar(parseInt(this.value))" style="min-height:38px; height:38px; padding:0 8px; font-size:0.9rem; border-radius:12px; width:auto; text-align:center;">
+                  <option value="" disabled selected>Other</option>
+                  <option value="2">2</option>
+                  <option value="5">5</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
 
-    <!-- 1.5: Default Par Setup -->
-    <h3 style="font-size: 1.2rem;">Default Par</h3>
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
-      <div style="font-size:0.85rem; color: var(--subtext);">Apply to all holes</div>
-      <div class="toggle-group" style="margin:0; width:auto;">
-        <button onclick="setDefaultPar(3)" style="min-height:36px; padding:0 14px;">3</button>
-        <button onclick="setDefaultPar(4)" style="min-height:36px; padding:0 14px;">4</button>
-        <select onchange="setDefaultPar(parseInt(this.value))" style="min-height:38px; height:38px; padding:0 8px; font-size:0.9rem; border-radius:12px; width:auto; text-align:center;">
-          <option value="" disabled selected>Other</option>
-          <option value="2">2</option>
-          <option value="5">5</option>
-        </select>
+        <!-- Sub-section 3: Hole-by-Hole Editor -->
+        <div style="margin-bottom: 12px; border: 1px solid var(--border); padding: 12px; border-radius: 12px; background: rgba(0,0,0,0.12);">
+          <div class="collapse-header" onclick="toggleSubSection('layoutEditor')" style="padding: 2px 0;">
+            <h4 style="font-size: 1.05rem; margin: 0; color: var(--accent); display:flex; align-items:center; gap:6px;">🛠️ Hole-by-Hole Editor</h4>
+            <span id="icon-sub-layoutEditor" class="collapse-icon">▾</span>
+          </div>
+          <div id="sub-layoutEditor" style="margin-top: 12px;" class="hidden">
+            <div style="display:flex; gap:8px; margin-bottom: 12px;">
+              <button onclick="addHole()" style="flex:1; font-size:0.9rem; padding: 10px; background:#112233; color:#66b2ff; border-color:#224466; min-height:42px;">➕ Add Hole</button>
+              <button onclick="removeLastHole()" style="flex:1; font-size:0.9rem; padding: 10px; background:#331111; color:#ff6666; border-color:#662222; min-height:42px;">➖ Remove Last</button>
+            </div>
+            <div id="holeSetupList" style="display:flex; flex-direction:column; gap:8px; max-height:260px; overflow-y:auto; padding-right:4px;"></div>
+          </div>
+        </div>
+
+        <!-- Sub-section 4: Course Layout Manager -->
+        <div style="margin-bottom: 4px; border: 1px solid var(--border); padding: 12px; border-radius: 12px; background: rgba(0,0,0,0.12);">
+          <div class="collapse-header" onclick="toggleSubSection('layoutManager')" style="padding: 2px 0;">
+            <h4 style="font-size: 1.05rem; margin: 0; color: var(--accent); display:flex; align-items:center; gap:6px;">👯 Course Layout Manager</h4>
+            <span id="icon-sub-layoutManager" class="collapse-icon">▾</span>
+          </div>
+          <div id="sub-layoutManager" style="margin-top: 12px;" class="hidden">
+            <div id="layoutManagerList" style="display:flex; flex-direction:column; gap:8px;"></div>
+          </div>
+        </div>
       </div>
     </div>
 
-    <hr style="border-color: var(--border); margin: 24px 0;">
+    <!-- Group 2: 🎨 Interface & Themes -->
+    <div style="margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 12px;">
+      <div class="collapse-header" onclick="toggleSettingsSection('interfaceTheme')" style="padding: 4px 0;">
+        <h3 style="font-size: 1.25rem; display:flex; align-items:center; gap:8px;">🎨 Interface & Theme Settings</h3>
+        <span id="icon-interfaceTheme" class="collapse-icon">▾</span>
+      </div>
+      <div id="sec-interfaceTheme" style="margin-top: 12px;" class="hidden">
+        <!-- Interface Scale Slider -->
+        <div style="margin-bottom: 16px; padding: 12px; border: 1px solid var(--border); border-radius: 10px; background: rgba(0,0,0,0.15);">
+          <div style="font-weight: bold; color: var(--accent); font-size: 0.95rem; margin-bottom: 8px; display:flex; justify-content:space-between;">
+            <span>🔍 Interface Scaling</span>
+            <span id="scaleValueDisplay" style="color:var(--text); font-weight: bold;">1.00x</span>
+          </div>
+          <input type="range" id="uiScale" min="0.8" max="1.5" step="0.05" value="1.0" oninput="setAppScale(this.value)" style="width:100%; cursor:pointer;">
+        </div>
 
-    <!-- 2nd: Interface Mode -->
-    <h3 style="font-size: 1.2rem;">Interface Mode</h3>
-    <div class="toggle-group" style="margin-bottom: 20px;"><button id="btnLeft" class="primary" onclick="setHandedness('left')" style="flex:1; font-size:0.9rem;">Left Ergonomic</button><button id="btnNormal" onclick="setHandedness('normal')" style="flex:1; font-size:0.9rem;">Centered</button><button id="btnRight" onclick="setHandedness('right')" style="flex:1; font-size:0.9rem;">Right Ergonomic</button></div>
-    
-    <hr style="border-color: var(--border); margin: 24px 0;">
+        <!-- Font Size Slider -->
+        <div style="margin-bottom: 16px; padding: 12px; border: 1px solid var(--border); border-radius: 10px; background: rgba(0,0,0,0.15);">
+          <div style="font-weight: bold; color: var(--accent); font-size: 0.95rem; margin-bottom: 8px; display:flex; justify-content:space-between;">
+            <span>🔤 Font & Label Size</span>
+            <span id="fontValueDisplay" style="color:var(--text); font-weight: bold;">1.00x</span>
+          </div>
+          <input type="range" id="fontScale" min="0.8" max="1.5" step="0.05" value="1.0" oninput="setFontScale(this.value)" style="width:100%; cursor:pointer;">
+        </div>
 
-    <!-- 3rd: Theme Selection -->
-    <h3 style="font-size: 1.2rem;">Theme Selection</h3>
-    <div class="toggle-group theme-btn-group" style="margin-bottom: 20px;">
-      <button id="theme-btn-default" onclick="setTheme('default')" style="font-size:0.85rem;">Cobalt Dark</button>
-      <button id="theme-btn-slate" onclick="setTheme('slate')" style="font-size:0.85rem;">Slate Gray</button>
-      <button id="theme-btn-teal" onclick="setTheme('teal')" style="font-size:0.85rem;">Teal Mint</button>
-      <button id="theme-btn-spooky" onclick="setTheme('spooky')" style="font-size:0.85rem;">🎃 Spooky</button>
-      <button id="theme-btn-forest" onclick="setTheme('forest')" style="font-size:0.85rem;">Forest Green</button>
-      <button id="theme-btn-sunset" onclick="setTheme('sunset')" style="font-size:0.85rem;">Sunset Orange</button>
-      <button id="theme-btn-ocean" onclick="setTheme('ocean')" style="font-size:0.85rem;">Ocean Blue</button>
-      <button id="theme-btn-cyber" onclick="setTheme('cyber')" style="font-size:0.85rem;">Cyberpunk</button>
-      <button id="theme-btn-purple" onclick="setTheme('purple')" style="font-size:0.85rem;">Midnight Purple</button>
-      <button id="theme-btn-crimson" onclick="setTheme('crimson')" style="font-size:0.85rem;">Crimson</button>
-      <button id="theme-btn-highcontrast" onclick="setTheme('highcontrast')" style="font-size:0.85rem;">High Contrast</button>
-      <button id="theme-btn-oled" onclick="setTheme('oled')" style="font-size:0.85rem;">OLED Cobalt</button>
-      <button id="theme-btn-oled_crimson" onclick="setTheme('oled_crimson')" style="font-size:0.85rem;">OLED Crimson</button>
-      <button id="theme-btn-oled_purple" onclick="setTheme('oled_purple')" style="font-size:0.85rem;">OLED Purple</button>
-      <button id="theme-btn-oled_emerald" onclick="setTheme('oled_emerald')" style="font-size:0.85rem;">OLED Emerald</button>
-      <button id="theme-btn-oled_amber" onclick="setTheme('oled_amber')" style="font-size:0.85rem;">OLED Amber</button>
-      <button id="theme-btn-oled_cyan" onclick="setTheme('oled_cyan')" style="font-size:0.85rem;">OLED Cyan</button>
-    </div>
+        <!-- Auto-Theme Player Colors Checkbox -->
+        <div style="margin-bottom: 16px; display:flex; align-items:center; gap:8px;">
+          <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:0.95rem; color:var(--text); user-select:none;">
+            <input type="checkbox" id="chkAutoThemeColors" onchange="setAutoThemeColors(this.checked)" style="width:20px; height:20px; cursor:pointer;">
+            Auto-Theme Player Colors
+          </label>
+        </div>
 
-    <hr style="border-color: var(--border); margin: 24px 0;">
+        <!-- Interface Mode -->
+        <h4 style="font-size: 1.1rem; margin: 12px 0 8px 0; color: var(--accent);">Interface Mode</h4>
+        <div class="toggle-group" style="margin-bottom: 16px;">
+          <button id="btnLeft" class="primary" onclick="setHandedness('left')" style="flex:1; font-size:0.9rem;">Left Ergonomic</button>
+          <button id="btnNormal" onclick="setHandedness('normal')" style="flex:1; font-size:0.9rem;">Centered</button>
+          <button id="btnRight" onclick="setHandedness('right')" style="flex:1; font-size:0.9rem;">Right Ergonomic</button>
+        </div>
+        
+        <hr style="border-color: var(--border); margin: 16px 0;">
 
-    <!-- 4th: Custom Highlight Override -->
-    <h3 style="font-size: 1.2rem;">Custom Highlight Override</h3>
-    <div style="font-size:0.85rem; color: var(--subtext); margin-bottom: 4px;">Global Base Colors</div>
-    <div class="color-swatch-bar" style="margin-bottom: 12px;">
-      <div class="color-swatch" id="swatch-null" style="background: transparent; color: var(--text); display:flex; align-items:center; justify-content:center; font-size:0.8rem;" onclick="setHighlightOverride(null)">Reset</div>
-      <div class="color-swatch" id="swatch-ffffff" style="background: #ffffff;" onclick="setHighlightOverride('#ffffff')"></div>
-      <div class="color-swatch" id="swatch-ff5252" style="background: #ff5252;" onclick="setHighlightOverride('#ff5252')"></div>
-      <div class="color-swatch" id="swatch-ff4081" style="background: #ff4081;" onclick="setHighlightOverride('#ff4081')"></div>
-      <div class="color-swatch" id="swatch-e040fb" style="background: #e040fb;" onclick="setHighlightOverride('#e040fb')"></div>
-      <div class="color-swatch" id="swatch-7c4dff" style="background: #7c4dff;" onclick="setHighlightOverride('#7c4dff')"></div>
-      <div class="color-swatch" id="swatch-536dfe" style="background: #536dfe;" onclick="setHighlightOverride('#536dfe')"></div>
-      <div class="color-swatch" id="swatch-448aff" style="background: #448aff;" onclick="setHighlightOverride('#448aff')"></div>
-      <div class="color-swatch" id="swatch-40c4ff" style="background: #40c4ff;" onclick="setHighlightOverride('#40c4ff')"></div>
-      <div class="color-swatch" id="swatch-18ffff" style="background: #18ffff;" onclick="setHighlightOverride('#18ffff')"></div>
-      <div class="color-swatch" id="swatch-64ffda" style="background: #64ffda;" onclick="setHighlightOverride('#64ffda')"></div>
-      <div class="color-swatch" id="swatch-69f0ae" style="background: #69f0ae;" onclick="setHighlightOverride('#69f0ae')"></div>
-      <div class="color-swatch" id="swatch-b2ff59" style="background: #b2ff59;" onclick="setHighlightOverride('#b2ff59')"></div>
-      <div class="color-swatch" id="swatch-eeff41" style="background: #eeff41;" onclick="setHighlightOverride('#eeff41')"></div>
-      <div class="color-swatch" id="swatch-ffff00" style="background: #ffff00;" onclick="setHighlightOverride('#ffff00')"></div>
-      <div class="color-swatch" id="swatch-ffd740" style="background: #ffd740;" onclick="setHighlightOverride('#ffd740')"></div>
-      <div class="color-swatch" id="swatch-ffab40" style="background: #ffab40;" onclick="setHighlightOverride('#ffab40')"></div>
-      <div class="color-swatch" id="swatch-ff6e40" style="background: #ff6e40;" onclick="setHighlightOverride('#ff6e40')"></div>
-      
-      <!-- Native Custom Color Picker Swatch -->
-      <div class="color-swatch" id="swatch-custom" style="position:relative; background: linear-gradient(45deg, red, orange, yellow, green, blue, purple); display:flex; align-items:center; justify-content:center; font-size:1.1rem; font-weight:bold;" onclick="document.getElementById('customColorPicker').click()">
-        🎨
-        <input type="color" id="customColorPicker" style="position:absolute; top:0; left:0; width:100%; height:100%; opacity:0; cursor:pointer;" onchange="setHighlightOverride(this.value)">
+        <!-- Theme Selection -->
+        <h4 style="font-size: 1.1rem; margin: 0 0 8px 0; color: var(--accent);">Theme Selection</h4>
+        <div class="toggle-group theme-btn-group" style="margin-bottom: 16px;">
+          <button id="theme-btn-default" onclick="setTheme('default')" style="font-size:0.85rem;">Cobalt Dark</button>
+          <button id="theme-btn-slate" onclick="setTheme('slate')" style="font-size:0.85rem;">Slate Gray</button>
+          <button id="theme-btn-teal" onclick="setTheme('teal')" style="font-size:0.85rem;">Teal Mint</button>
+          <button id="theme-btn-spooky" onclick="setTheme('spooky')" style="font-size:0.85rem;">🎃 Spooky</button>
+          <button id="theme-btn-forest" onclick="setTheme('forest')" style="font-size:0.85rem;">Forest Green</button>
+          <button id="theme-btn-sunset" onclick="setTheme('sunset')" style="font-size:0.85rem;">Sunset Orange</button>
+          <button id="theme-btn-ocean" onclick="setTheme('ocean')" style="font-size:0.85rem;">Ocean Blue</button>
+          <button id="theme-btn-cyber" onclick="setTheme('cyber')" style="font-size:0.85rem;">Cyberpunk</button>
+          <button id="theme-btn-purple" onclick="setTheme('purple')" style="font-size:0.85rem;">Midnight Purple</button>
+          <button id="theme-btn-crimson" onclick="setTheme('crimson')" style="font-size:0.85rem;">Crimson</button>
+          <button id="theme-btn-highcontrast" onclick="setTheme('highcontrast')" style="font-size:0.85rem;">High Contrast</button>
+          <button id="theme-btn-oled" onclick="setTheme('oled')" style="font-size:0.85rem;">OLED Cobalt</button>
+          <button id="theme-btn-oled_crimson" onclick="setTheme('oled_crimson')" style="font-size:0.85rem;">OLED Crimson</button>
+          <button id="theme-btn-oled_purple" onclick="setTheme('oled_purple')" style="font-size:0.85rem;">OLED Purple</button>
+          <button id="theme-btn-oled_emerald" onclick="setTheme('oled_emerald')" style="font-size:0.85rem;">OLED Emerald</button>
+          <button id="theme-btn-oled_amber" onclick="setTheme('oled_amber')" style="font-size:0.85rem;">OLED Amber</button>
+          <button id="theme-btn-oled_cyan" onclick="setTheme('oled_cyan')" style="font-size:0.85rem;">OLED Cyan</button>
+        </div>
+
+        <hr style="border-color: var(--border); margin: 16px 0;">
+
+        <!-- Custom Highlight Override -->
+        <h4 style="font-size: 1.1rem; margin: 0 0 8px 0; color: var(--accent);">Custom Highlight Override</h4>
+        <div style="font-size:0.85rem; color: var(--subtext); margin-bottom: 4px;">Global Base Colors</div>
+        <div class="color-swatch-bar" style="margin-bottom: 12px;">
+          <div class="color-swatch" id="swatch-null" style="background: transparent; color: var(--text); display:flex; align-items:center; justify-content:center; font-size:0.8rem;" onclick="setHighlightOverride(null)">Reset</div>
+          <div class="color-swatch" id="swatch-ffffff" style="background: #ffffff;" onclick="setHighlightOverride('#ffffff')"></div>
+          <div class="color-swatch" id="swatch-ff5252" style="background: #ff5252;" onclick="setHighlightOverride('#ff5252')"></div>
+          <div class="color-swatch" id="swatch-ff4081" style="background: #ff4081;" onclick="setHighlightOverride('#ff4081')"></div>
+          <div class="color-swatch" id="swatch-e040fb" style="background: #e040fb;" onclick="setHighlightOverride('#e040fb')"></div>
+          <div class="color-swatch" id="swatch-7c4dff" style="background: #7c4dff;" onclick="setHighlightOverride('#7c4dff')"></div>
+          <div class="color-swatch" id="swatch-536dfe" style="background: #536dfe;" onclick="setHighlightOverride('#536dfe')"></div>
+          <div class="color-swatch" id="swatch-448aff" style="background: #448aff;" onclick="setHighlightOverride('#448aff')"></div>
+          <div class="color-swatch" id="swatch-40c4ff" style="background: #40c4ff;" onclick="setHighlightOverride('#40c4ff')"></div>
+          <div class="color-swatch" id="swatch-18ffff" style="background: #18ffff;" onclick="setHighlightOverride('#18ffff')"></div>
+          <div class="color-swatch" id="swatch-64ffda" style="background: #64ffda;" onclick="setHighlightOverride('#64ffda')"></div>
+          <div class="color-swatch" id="swatch-69f0ae" style="background: #69f0ae;" onclick="setHighlightOverride('#69f0ae')"></div>
+          <div class="color-swatch" id="swatch-b2ff59" style="background: #b2ff59;" onclick="setHighlightOverride('#b2ff59')"></div>
+          <div class="color-swatch" id="swatch-eeff41" style="background: #eeff41;" onclick="setHighlightOverride('#eeff41')"></div>
+          <div class="color-swatch" id="swatch-ffff00" style="background: #ffff00;" onclick="setHighlightOverride('#ffff00')"></div>
+          <div class="color-swatch" id="swatch-ffd740" style="background: #ffd740;" onclick="setHighlightOverride('#ffd740')"></div>
+          <div class="color-swatch" id="swatch-ffab40" style="background: #ffab40;" onclick="setHighlightOverride('#ffab40')"></div>
+          <div class="color-swatch" id="swatch-ff6e40" style="background: #ff6e40;" onclick="setHighlightOverride('#ff6e40')"></div>
+          
+          <div class="color-swatch" id="swatch-custom" style="position:relative; background: linear-gradient(45deg, red, orange, yellow, green, blue, purple); display:flex; align-items:center; justify-content:center; font-size:1.1rem; font-weight:bold;" onclick="document.getElementById('customColorPicker').click()">
+            🎨
+            <input type="color" id="customColorPicker" style="position:absolute; top:0; left:0; width:100%; height:100%; opacity:0; cursor:pointer;" onchange="setHighlightOverride(this.value)">
+          </div>
+        </div>
+
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 4px;">
+          <div style="font-size:0.85rem; color: var(--subtext);">Surprise Me Palette</div>
+          <button onclick="generateRandomRow()" style="min-height: 28px; height: 28px; font-size: 0.75rem; padding: 0 10px; border-radius: 6px; background:var(--btn-bg); color:var(--accent); border-color:var(--border);">🎲 Roll Row</button>
+        </div>
+        <div class="color-swatch-bar" id="randomSwatchBar" style="margin-bottom: 12px;"></div>
+
+        <div style="font-size:0.85rem; color: var(--subtext); margin-bottom: 4px;">Theme-Contextual Accents</div>
+        <div class="color-swatch-bar" id="contextualSwatchBar" style="margin-bottom: 16px;"></div>
+
+        <hr style="border-color: var(--border); margin: 16px 0;">
+
+        <!-- Player & Title Flairs -->
+        <h4 style="font-size: 1.1rem; margin: 0 0 8px 0; color: var(--accent);">Player & Title Flairs</h4>
+        <div style="margin-bottom: 12px; padding:12px; border:1px solid var(--border); border-radius:10px; background:rgba(0,0,0,0.15);">
+          <div style="font-weight: bold; color: var(--accent); font-size: 0.95rem; margin-bottom: 8px;">Scorecard Title Flair</div>
+          <div style="display:flex; gap:8px; align-items:center; margin-bottom: 8px;">
+            <div id="titleFlairPreview" onclick="setTitleFlair('')" style="cursor:pointer; font-size: 1.8rem; min-width: 48px; height: 48px; display:flex; align-items:center; justify-content:center; background:var(--btn-bg); border: 1px solid var(--border); border-radius: 12px; transition: all 0.15s;" title="Click preview block to clear emoji"></div>
+            <input type="text" id="titleFlairInput" placeholder="Type or paste scorecard emoji..." value="" onchange="setTitleFlair(this.value)" style="flex:1; height: 48px;">
+          </div>
+          <div class="emoji-grid" id="titleEmojiGrid"></div>
+        </div>
+
+        <div id="playerFlairsContainer" style="margin-bottom: 12px;"></div>
       </div>
     </div>
 
-    <!-- Randomizer Row -->
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 4px;">
-      <div style="font-size:0.85rem; color: var(--subtext);">Surprise Me Palette</div>
-      <button onclick="generateRandomRow()" style="min-height: 28px; height: 28px; font-size: 0.75rem; padding: 0 10px; border-radius: 6px; background:var(--btn-bg); color:var(--accent); border-color:var(--border);">🎲 Roll Row</button>
-    </div>
-    <div class="color-swatch-bar" id="randomSwatchBar" style="margin-bottom: 16px;"></div>
-
-    <div style="font-size:0.85rem; color: var(--subtext); margin-bottom: 4px;">Theme-Contextual Accents</div>
-    <div class="color-swatch-bar" id="contextualSwatchBar" style="margin-bottom: 20px;"></div>
-
-    <hr style="border-color: var(--border); margin: 24px 0;">
-
-    <!-- 5th: Player & Scorecard Title Flairs -->
-    <h3 style="font-size: 1.2rem;">Player & Title Flairs</h3>
-    
-    <!-- Title Flair sub-block -->
-    <div style="margin-bottom: 16px; padding:12px; border:1px solid var(--border); border-radius:10px; background:rgba(0,0,0,0.15);">
-      <div style="font-weight: bold; color: var(--accent); font-size: 0.95rem; margin-bottom: 8px;">Scorecard Title Flair</div>
-      <div style="display:flex; gap:8px; align-items:center; margin-bottom: 8px;">
-        <div id="titleFlairPreview" onclick="setTitleFlair('')" style="cursor:pointer; font-size: 1.8rem; min-width: 48px; height: 48px; display:flex; align-items:center; justify-content:center; background:var(--btn-bg); border: 1px solid var(--border); border-radius: 12px; transition: all 0.15s;" title="Click preview block to clear emoji"></div>
-        <input type="text" id="titleFlairInput" placeholder="Type or paste scorecard emoji..." value="" onchange="setTitleFlair(this.value)" style="flex:1; height: 48px;">
+    <!-- Group 3: 💾 Past Rounds & Data Export -->
+    <div style="margin-bottom: 8px; padding-bottom: 4px;">
+      <div class="collapse-header" onclick="toggleSettingsSection('dataExport')" style="padding: 4px 0;">
+        <h3 style="font-size: 1.25rem; display:flex; align-items:center; gap:8px;">💾 Past Rounds & Data Export</h3>
+        <span id="icon-dataExport" class="collapse-icon">▾</span>
       </div>
-      <div class="emoji-grid" id="titleEmojiGrid"></div>
-    </div>
+      <div id="sec-dataExport" style="margin-top: 12px;" class="hidden">
+        <!-- Past Rounds History -->
+        <h4 style="font-size: 1.1rem; margin: 12px 0 8px 0; color: var(--accent);">Past Rounds</h4>
+        <div id="roundHistoryList" style="margin-bottom: 16px; font-size: 0.9rem; color: var(--subtext);">
+          No history yet.
+        </div>
 
-    <!-- Player Flairs container -->
-    <div id="playerFlairsContainer" style="margin-bottom: 20px;"></div>
+        <hr style="border-color: var(--border); margin: 16px 0;">
 
-    <hr style="border-color: var(--border); margin: 24px 0;">
+        <!-- Help Modal & Credits -->
+        <div style="display:flex; gap:8px; margin-bottom: 16px;">
+          <button onclick="showHelpModal()" style="flex:1; font-size:0.9rem; padding: 12px; background:var(--btn-bg); display:flex; align-items:center; justify-content:center; gap:8px; cursor:pointer;">📖 Help & Pro-tips</button>
+          <button onclick="showThankYouModal()" style="font-size:1.1rem; width:52px; height:45px; padding:0; background:var(--btn-bg); display:flex; align-items:center; justify-content:center; cursor:pointer;" title="Vibe Egg">🛸</button>
+        </div>
 
-    <!-- 5.5: Course Catalog -->
-    <h3 style="font-size: 1.2rem;">Course Catalog</h3>
-    <div style="display:flex; gap:8px; margin-bottom: 8px;">
-      <button onclick="saveCoursePreset()" style="flex:1; font-size:0.9rem; padding: 0 12px; background:var(--btn-bg);">Save Current Course</button>
-    </div>
-    <select id="courseCatalogSelect" onchange="loadCoursePreset(this.value)" style="margin-bottom: 20px;">
-      <option value="" disabled selected>Load Saved Preset...</option>
-    </select>
-
-    <!-- 5.6: Past Rounds History -->
-    <h3 style="font-size: 1.2rem;">Past Rounds</h3>
-    <div id="roundHistoryList" style="margin-bottom: 20px; font-size: 0.9rem; color: var(--subtext);">
-      No history yet.
-    </div>
-
-    <hr style="border-color: var(--border); margin: 24px 0;">
-
-    <!-- 5.7: Help & Vibe Easter Eggs -->
-    <h3 style="font-size: 1.2rem;">Help & Info</h3>
-    <div style="display:flex; gap:8px; margin-bottom: 20px;">
-      <button onclick="showHelpModal()" style="flex:1; font-size:0.9rem; padding: 12px; background:var(--btn-bg); display:flex; align-items:center; justify-content:center; gap:8px; cursor:pointer;">📖 Help & Pro-tips</button>
-      <button onclick="showThankYouModal()" style="font-size:1.1rem; width:52px; height:45px; padding:0; background:var(--btn-bg); display:flex; align-items:center; justify-content:center; cursor:pointer;" title="Vibe Egg">🛸</button>
-    </div>
-
-    <hr style="border-color: var(--border); margin: 24px 0;">
-    
-    <!-- 6th: Exporting Section -->
-    <div class="settings-action-grid">
-      <button onclick="saveRoundToHistory()" style="background:#223311; color:#aaff66; border-color:#446622; font-size: 0.95rem; line-height: 1.2;">💾 Save Round<br><span style="font-size: 0.75rem; opacity: 0.85;">(History)</span></button>
-      <button onclick="exportMasterRound()" style="background:#112233; color:#66b2ff; border-color:#224466; font-size: 0.95rem; line-height: 1.2;">📤 Export Master<br><span style="font-size: 0.75rem; opacity: 0.85;">(.dgpro)</span></button>
-      <button onclick="document.getElementById('unifiedImportInput').click()" style="background:#113322; color:#66ffaa; border-color:#226644; font-size: 0.95rem; line-height: 1.2;">📥 Import File<br><span style="font-size: 0.75rem; opacity: 0.85;">(.dgpro, .json, .csv)</span></button>
-      <button onclick="exportCSVData()" style="background:#2d2611; color:#ffdd66; border-color:#554422; font-size: 0.95rem; line-height: 1.2;">📊 Export CSV<br><span style="font-size: 0.75rem; opacity: 0.85;">(Spreadsheet)</span></button>
-      <button onclick="resetRound()" style="background:#331111; color:#ff6666; border-color:#662222; font-size: 0.95rem; line-height: 1.2; grid-column: span 2;">🔄 Reset Round<br><span style="font-size: 0.75rem; opacity: 0.85;">(Clear Active)</span></button>
-      <input type="file" id="unifiedImportInput" accept=".dgpro,.json,.csv" onchange="importUnifiedFile(event)" style="display:none;">
+        <hr style="border-color: var(--border); margin: 16px 0;">
+        
+        <!-- Exporting Section -->
+        <div class="settings-action-grid">
+          <button onclick="saveRoundToHistory()" style="background:#223311; color:#aaff66; border-color:#446622; font-size: 0.95rem; line-height: 1.2;">💾 Save Round<br><span style="font-size: 0.75rem; opacity: 0.85;">(History)</span></button>
+          <button onclick="exportMasterRound()" style="background:#112233; color:#66b2ff; border-color:#224466; font-size: 0.95rem; line-height: 1.2;">📤 Export Master<br><span style="font-size: 0.75rem; opacity: 0.85;">(.dgpro)</span></button>
+          <button onclick="document.getElementById('unifiedImportInput').click()" style="background:#113322; color:#66ffaa; border-color:#226644; font-size: 0.95rem; line-height: 1.2;">📥 Import File<br><span style="font-size: 0.75rem; opacity: 0.85;">(.dgpro, .json, .csv)</span></button>
+          <button onclick="exportCSVData()" style="background:#2d2611; color:#ffdd66; border-color:#554422; font-size: 0.95rem; line-height: 1.2;">📊 Export CSV<br><span style="font-size: 0.75rem; opacity: 0.85;">(Spreadsheet)</span></button>
+          <button onclick="resetRound()" style="background:#331111; color:#ff6666; border-color:#662222; font-size: 0.95rem; line-height: 1.2; grid-column: span 2;">🔄 Reset Round<br><span style="font-size: 0.75rem; opacity: 0.85;">(Clear Active)</span></button>
+          <input type="file" id="unifiedImportInput" accept=".dgpro,.json,.csv" onchange="importUnifiedFile(event)" style="display:none;">
+        </div>
+      </div>
     </div>
   </div>
 
@@ -676,15 +764,225 @@
       highcontrast: ["#ffff00", "#00ffff", "#ff00ff", "#00ff00", "#ff0000", "#0000ff", "#ffffff", "#ff8800"]
     };
 
+    function resizeArray(arr, newLength, fillValue) {
+      let newArr = [...arr];
+      if (newArr.length < newLength) {
+        while (newArr.length < newLength) {
+          newArr.push(fillValue);
+        }
+      } else if (newArr.length > newLength) {
+        newArr = newArr.slice(0, newLength);
+      }
+      return newArr;
+    }
+
     let defaultPar = safeParseItem('dg_default_par', 3);
-    let pars = safeParseItem('dg_pars', Array(18).fill(defaultPar));
+    let holeLabels = safeParseItem('dg_hole_labels', null);
+    let pars = safeParseItem('dg_pars', null);
+
+    if (!pars) {
+      pars = Array(18).fill(defaultPar);
+    }
+    if (!holeLabels) {
+      holeLabels = Array.from({length: pars.length}, (_, i) => (i + 1).toString());
+    }
+
     let players = safeParseItem('dg_players', [
-      { id: 1, name: "Player 1", flair: "🥏", scores: Array(18).fill(null) }
+      { id: 1, name: "Player 1", flair: "🥏", scores: Array(holeLabels.length).fill(null) }
     ]);
+
+    // Reconcile arrays
+    players.forEach(p => {
+      if (!p.scores || p.scores.length !== holeLabels.length) {
+        p.scores = resizeArray(p.scores || [], holeLabels.length, null);
+      }
+    });
+
     let activeOverviewColumn = 'par';
 
+    // Collapsible Settings State
+    let settingsCollapsed = safeParseItem('dg_settings_collapsed', {
+      courseRoster: true,
+      interfaceTheme: true,
+      dataExport: true
+    });
+
+    let appScale = safeParseItem('dg_app_scale', 1.0);
+    let fontScale = safeParseItem('dg_font_scale', 1.0);
+    let autoThemeColors = localStorage.getItem('dg_auto_theme_colors') === 'true';
+
+    function setAppScale(val) {
+      appScale = parseFloat(val);
+      localStorage.setItem('dg_app_scale', val);
+      document.documentElement.style.setProperty('--app-scale', val);
+      let scaleDisp = document.getElementById('scaleValueDisplay');
+      if (scaleDisp) scaleDisp.innerText = appScale.toFixed(2) + 'x';
+      let rangeInput = document.getElementById('uiScale');
+      if (rangeInput) rangeInput.value = val;
+    }
+
+    function setFontScale(val) {
+      fontScale = parseFloat(val);
+      localStorage.setItem('dg_font_scale', val);
+      document.documentElement.style.setProperty('--font-scale', val);
+      let fontDisp = document.getElementById('fontValueDisplay');
+      if (fontDisp) fontDisp.innerText = fontScale.toFixed(2) + 'x';
+      let rangeInput = document.getElementById('fontScale');
+      if (rangeInput) rangeInput.value = val;
+    }
+
+    function setAutoThemeColors(val) {
+      autoThemeColors = val;
+      localStorage.setItem('dg_auto_theme_colors', val);
+      updateDisplay();
+      if (document.getElementById('tabOverview') && !document.getElementById('tabOverview').classList.contains('hidden')) {
+        renderOverview();
+      }
+    }
+
+    function toggleSettingsSection(secKey) {
+      settingsCollapsed[secKey] = !settingsCollapsed[secKey];
+      localStorage.setItem('dg_settings_collapsed', JSON.stringify(settingsCollapsed));
+      applySettingsSectionsState();
+    }
+
+    function applySettingsSectionsState() {
+      for (let secKey in settingsCollapsed) {
+        let body = document.getElementById('sec-' + secKey);
+        let icon = document.getElementById('icon-' + secKey);
+        if (body && icon) {
+          if (settingsCollapsed[secKey]) {
+            body.classList.add('hidden');
+            icon.classList.add('collapsed');
+          } else {
+            body.classList.remove('hidden');
+            icon.classList.remove('collapsed');
+          }
+        }
+      }
+    }
+
+    let subCollapsed = {
+      rosterMgmt: true,
+      defaultPar: true,
+      layoutEditor: true,
+      layoutManager: true
+    };
+
+    function toggleSubSection(subKey) {
+      subCollapsed[subKey] = !subCollapsed[subKey];
+      applySubSectionsState();
+    }
+
+    function applySubSectionsState() {
+      for (let subKey in subCollapsed) {
+        let body = document.getElementById('sub-' + subKey);
+        let icon = document.getElementById('icon-sub-' + subKey);
+        if (body && icon) {
+          if (subCollapsed[subKey]) {
+            body.classList.add('hidden');
+            icon.classList.add('collapsed');
+          } else {
+            body.classList.remove('hidden');
+            icon.classList.remove('collapsed');
+          }
+        }
+      }
+    }
+
+    function addHole(label = null, par = defaultPar) {
+      if (!label) {
+        let lastLabel = holeLabels[holeLabels.length - 1];
+        let num = parseInt(lastLabel);
+        if (!isNaN(num)) {
+          label = (num + 1).toString();
+        } else {
+          label = (holeLabels.length + 1).toString();
+        }
+      }
+      holeLabels.push(label);
+      pars.push(par);
+      players.forEach(p => p.scores.push(null));
+      saveState();
+      updateDisplay();
+      if (document.getElementById('tabOverview') && !document.getElementById('tabOverview').classList.contains('hidden')) {
+        renderOverview();
+      }
+      renderHoleSetupUI();
+    }
+
+    function removeLastHole() {
+      if (holeLabels.length <= 1) {
+        alert("A course must have at least 1 hole!");
+        return;
+      }
+      if (confirm(`Are you sure you want to delete Hole ${holeLabels[holeLabels.length - 1]}?`)) {
+        holeLabels.pop();
+        pars.pop();
+        players.forEach(p => p.scores.pop());
+        if (currentHole > holeLabels.length) {
+          currentHole = holeLabels.length;
+        }
+        saveState();
+        updateDisplay();
+        if (document.getElementById('tabOverview') && !document.getElementById('tabOverview').classList.contains('hidden')) {
+          renderOverview();
+        }
+        renderHoleSetupUI();
+      }
+    }
+
+    function renderHoleSetupUI() {
+      let container = document.getElementById('holeSetupList');
+      if (!container) return;
+      container.innerHTML = holeLabels.map((lbl, idx) => {
+        return `
+          <div style="display:flex; align-items:center; gap:8px; background: rgba(255,255,255,0.05); padding:8px 12px; border-radius:10px; border:1px solid var(--border);">
+            <span style="font-size:0.9rem; font-weight:bold; width:30px;">#${idx + 1}</span>
+            <input type="text" value="${lbl}" onchange="updateHoleLabel(${idx}, this.value)" style="flex:1; min-height:36px; padding:4px 8px; font-size:0.9rem; text-align:center; border-radius:8px;" title="Edit hole label">
+            <div style="display:flex; align-items:center; gap:4px;">
+              <span style="font-size:0.8rem; color:var(--subtext);">Par:</span>
+              <button class="table-par-btn" onclick="adjustHoleParOverview(${idx}, -1)" style="min-height:28px; height:28px; width:28px; padding:0; font-size:1rem;">-</button>
+              <span style="font-weight:bold; min-width:18px; text-align:center;">${pars[idx]}</span>
+              <button class="table-par-btn" onclick="adjustHoleParOverview(${idx}, 1)" style="min-height:28px; height:28px; width:28px; padding:0; font-size:1rem;">+</button>
+            </div>
+            <button onclick="deleteHole(${idx})" style="background:#331111; color:#ff6666; border-color:#662222; min-height:28px; height:28px; width:28px; padding:0; font-size:0.85rem;" title="Delete this hole">✕</button>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function updateHoleLabel(idx, val) {
+      let clean = val.trim();
+      if (!clean) return;
+      holeLabels[idx] = clean;
+      saveState();
+      updateDisplay();
+    }
+
+    function deleteHole(idx) {
+      if (holeLabels.length <= 1) {
+        alert("A course must have at least 1 hole!");
+        return;
+      }
+      if (confirm(`Are you sure you want to delete Hole ${holeLabels[idx]}?`)) {
+        holeLabels.splice(idx, 1);
+        pars.splice(idx, 1);
+        players.forEach(p => p.scores.splice(idx, 1));
+        if (currentHole > holeLabels.length) {
+          currentHole = holeLabels.length;
+        }
+        saveState();
+        updateDisplay();
+        if (document.getElementById('tabOverview') && !document.getElementById('tabOverview').classList.contains('hidden')) {
+          renderOverview();
+        }
+        renderHoleSetupUI();
+      }
+    }
+
     function getPlayerColor(i) { 
-      if (players[i] && players[i].color) return players[i].color;
+      if (!autoThemeColors && players[i] && players[i].color) return players[i].color;
       let palette = themePalettes[theme] || themePalettes.default; 
       return palette[i % palette.length]; 
     }
@@ -769,7 +1067,7 @@
     function setDefaultPar(val) {
       defaultPar = val;
       localStorage.setItem('dg_default_par', val);
-      pars = Array(18).fill(val);
+      pars = Array(holeLabels.length).fill(val);
       saveState();
       renderOverview();
       updateDisplay();
@@ -822,24 +1120,34 @@
       updateDisplay();
     }
 
-    function saveState() { 
-      localStorage.setItem('dg_course', document.getElementById('courseName').value); 
-      localStorage.setItem('dg_pars', JSON.stringify(pars)); 
-      localStorage.setItem('dg_players', JSON.stringify(players)); 
+    function saveState() {
+      localStorage.setItem('dg_course', document.getElementById('courseName').value);
+      localStorage.setItem('dg_hole_labels', JSON.stringify(holeLabels));
+      localStorage.setItem('dg_pars', JSON.stringify(pars));
+      localStorage.setItem('dg_players', JSON.stringify(players));
       localStorage.setItem('dg_notes', roundNotes);
       localStorage.setItem('dg_notes_collapsed', notesCollapsed);
     }
 
-    function loadState() { 
-      let savedCourse = localStorage.getItem('dg_course'); 
-      if (savedCourse) document.getElementById('courseName').value = savedCourse; 
+    function loadState() {
+      let savedCourse = localStorage.getItem('dg_course');
+      if (savedCourse) document.getElementById('courseName').value = savedCourse;
       document.getElementById('titleFlairInput').value = titleFlair;
       document.getElementById('roundNotes').value = roundNotes;
+      
+      let chk = document.getElementById('chkAutoThemeColors');
+      if (chk) chk.checked = autoThemeColors;
+
+      setAppScale(appScale);
+      setFontScale(fontScale);
       applyNotesCollapseState();
-      applyTheme(); 
-      setHandedness(handMode); 
+      applySettingsSectionsState();
+      applySubSectionsState();
+      applyTheme();
+      setHandedness(handMode);
       setTitleFlair(titleFlair); // Refresh title flair preview and grids
       generateRandomRow(); // Populate surprise palette swatches
+      renderHoleSetupUI();
 
       // Initialize IndexedDB and load full-resolution photos
       initDB().then(() => {
@@ -858,7 +1166,7 @@
     function saveCoursePreset() {
       if (!db) return;
       let course = document.getElementById('courseName').value;
-      let preset = { name: course, pars: pars };
+      let preset = { name: course, pars: pars, holeLabels: holeLabels };
       db.transaction(["courses"], "readwrite").objectStore("courses").add(preset).onsuccess = () => {
         renderCourseCatalog();
         alert("Course preset saved!");
@@ -872,9 +1180,22 @@
         if (preset) {
           document.getElementById('courseName').value = preset.name;
           pars = preset.pars;
+          if (preset.holeLabels) {
+            holeLabels = preset.holeLabels;
+          } else {
+            holeLabels = Array.from({length: pars.length}, (_, i) => (i + 1).toString());
+          }
+          // Ensure active players have properly sized scores arrays
+          players.forEach(p => {
+            if (!p.scores || p.scores.length !== holeLabels.length) {
+              p.scores = resizeArray(p.scores || [], holeLabels.length, null);
+            }
+          });
+          currentHole = 1;
           saveState();
           updateDisplay();
           renderOverview();
+          renderHoleSetupUI();
           alert("Course loaded!");
         }
       };
@@ -884,11 +1205,73 @@
       if (!db) return;
       db.transaction(["courses"], "readonly").objectStore("courses").getAll().onsuccess = (e) => {
         let courses = e.target.result;
-        let select = document.getElementById('courseCatalogSelect');
-        select.innerHTML = '<option value="" disabled selected>Load Saved Preset...</option>';
-        courses.forEach(c => {
-          select.innerHTML += `<option value="${c.id}">${c.name}</option>`;
-        });
+        let quickSelect = document.getElementById('quickCourseCatalogSelect');
+        if (quickSelect) {
+          quickSelect.innerHTML = '<option value="" disabled selected>Load Saved Preset...</option>';
+          courses.forEach(c => {
+            quickSelect.innerHTML += `<option value="${c.id}">${c.name}</option>`;
+          });
+        }
+        renderLayoutManager(); // Sync Layouts Manager in Settings
+      };
+    }
+
+    function renderLayoutManager() {
+      let container = document.getElementById('layoutManagerList');
+      if (!container) return;
+      if (!db) {
+        container.innerHTML = `<div style="font-size:0.85rem; color:var(--subtext);">Database not initialized yet.</div>`;
+        return;
+      }
+      db.transaction(["courses"], "readonly").objectStore("courses").getAll().onsuccess = (e) => {
+        let courses = e.target.result;
+        if (courses.length === 0) {
+          container.innerHTML = `<div style="font-size:0.85rem; color:var(--subtext); text-align:center; padding:12px; border: 1px dashed var(--border); border-radius:10px;">No saved course presets. Tap "Save" at the top of the app to create one!</div>`;
+          return;
+        }
+        container.innerHTML = courses.map(c => {
+          let numHoles = c.holeLabels ? c.holeLabels.length : (c.pars ? c.pars.length : 18);
+          let parSum = c.pars ? c.pars.reduce((a, b) => a + b, 0) : 54;
+          return `
+            <div style="display:flex; flex-direction:column; gap:8px; padding:12px; background: rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:12px; margin-bottom:8px;">
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-weight:bold; font-size:0.95rem; color:var(--text); word-break:break-word; flex:1; padding-right:8px;">${c.name}</span>
+                <span style="font-size:0.8rem; color:var(--subtext); white-space:nowrap;">${numHoles} h (Par ${parSum})</span>
+              </div>
+              <div style="display:flex; gap:8px; margin-top:4px;">
+                <button onclick="loadCoursePreset(${c.id})" style="flex:1; min-height:30px; height:30px; font-size:0.8rem; padding:0; background:#112233; color:#66b2ff; border-color:#224466;">📂 Load</button>
+                <button onclick="duplicateCoursePreset(${c.id})" style="flex:1; min-height:30px; height:30px; font-size:0.8rem; padding:0; background:#113322; color:#66ffaa; border-color:#226644;">👯 Copy</button>
+                <button onclick="deleteCoursePreset(${c.id})" style="min-height:30px; height:30px; width:45px; font-size:0.8rem; padding:0; background:#331111; color:#ff6666; border-color:#662222;" title="Delete layout">🗑️</button>
+              </div>
+            </div>
+          `;
+        }).join('');
+      };
+    }
+
+    function duplicateCoursePreset(id) {
+      if (!db) return;
+      db.transaction(["courses"], "readonly").objectStore("courses").get(parseInt(id)).onsuccess = (e) => {
+        let preset = e.target.result;
+        if (preset) {
+          let copy = {
+            name: preset.name + " - Copy",
+            pars: [...preset.pars],
+            holeLabels: preset.holeLabels ? [...preset.holeLabels] : Array.from({length: preset.pars.length}, (_, i) => (i + 1).toString())
+          };
+          db.transaction(["courses"], "readwrite").objectStore("courses").add(copy).onsuccess = () => {
+            renderCourseCatalog();
+            alert(`Duplicated course layout to "${copy.name}"!`);
+          };
+        }
+      };
+    }
+
+    function deleteCoursePreset(id) {
+      if (!db || !confirm("Are you sure you want to permanently delete this course layout?")) return;
+      db.transaction(["courses"], "readwrite").objectStore("courses").delete(parseInt(id)).onsuccess = () => {
+        renderCourseCatalog();
+        alert("Course layout deleted.");
       };
     }
 
@@ -900,6 +1283,7 @@
         date: new Date().toISOString(),
         course: document.getElementById('courseName').value,
         pars: pars,
+        holeLabels: holeLabels,
         players: players,
         notes: roundNotes,
         images: roundImages.map(img => img.data)
@@ -920,7 +1304,20 @@
         if (r) {
           document.getElementById('courseName').value = r.course;
           pars = r.pars;
+          if (r.holeLabels) {
+            holeLabels = r.holeLabels;
+          } else {
+            holeLabels = Array.from({length: pars.length}, (_, i) => (i + 1).toString());
+          }
           players = r.players;
+          
+          // Reconcile players scores array lengths just in case
+          players.forEach(p => {
+            if (!p.scores || p.scores.length !== holeLabels.length) {
+              p.scores = resizeArray(p.scores || [], holeLabels.length, null);
+            }
+          });
+
           roundNotes = r.notes || '';
           let notesTextarea = document.getElementById('roundNotes');
           if (notesTextarea) notesTextarea.value = roundNotes;
@@ -940,6 +1337,7 @@
             renderMediaGrid();
             saveState();
             updateDisplay();
+            renderHoleSetupUI();
             switchTab('Track');
             alert("Round loaded successfully!");
           }).catch(err => {
@@ -992,8 +1390,9 @@
       saveState();
       renderOverview();
       updateDisplay();
+      renderHoleSetupUI();
     }
-    function changeHole(d) { currentHole = Math.min(18, Math.max(1, currentHole + d)); updateDisplay(); }
+    function changeHole(d) { currentHole = Math.min(holeLabels.length, Math.max(1, currentHole + d)); updateDisplay(); }
     function adjustPlayerScore(pI, d) { let s = players[pI].scores[currentHole - 1]; players[pI].scores[currentHole - 1] = s === null ? pars[currentHole - 1] + d : Math.max(1, s + d); updateDisplay(); }
 
     function togglePlayerGraph(pId) {
@@ -1170,7 +1569,7 @@
       }
       let numDisplay = document.getElementById('holeNumberDisplay');
       if (numDisplay) {
-        numDisplay.innerText = currentHole;
+        numDisplay.innerText = holeLabels[currentHole - 1];
       }
       let parDisplay = document.getElementById('parDisplay');
       if (parDisplay) {
@@ -1200,7 +1599,7 @@
         
         let totalHTML = `
           <div style="font-size:0.85rem; line-height:1.35; color:var(--subtext);">
-            <div>Thru Hole ${currentHole}: <strong style="color:${runColor};">${runStr} (${runThrows})</strong></div>
+            <div>Thru Hole ${holeLabels[currentHole - 1]}: <strong style="color:${runColor};">${runStr} (${runThrows})</strong></div>
             <div style="font-size:0.75rem; opacity:0.8;">Full Round: <strong style="color:${dColor};">${dStr} (${throws})</strong></div>
           </div>
         `;
@@ -1297,7 +1696,7 @@
       body.innerHTML = '';
       let pTot = pars.reduce((a, b) => a + b, 0);
 
-      for (let i = 0; i < 18; i++) {
+      for (let i = 0; i < holeLabels.length; i++) {
         // Render Par Column (either interactive stepper or static text)
         let parHTML = '';
         if (activeOverviewColumn === 'par') {
@@ -1312,7 +1711,7 @@
           parHTML = `<span style="font-weight: bold; color: var(--subtext);">${pars[i]}</span>`;
         }
 
-        let row = `<tr><td>${i + 1}</td><td>${parHTML}</td>`;
+        let row = `<tr><td>${holeLabels[i]}</td><td>${parHTML}</td>`;
 
         players.forEach((p, pIdx) => {
           let score = p.scores[i];
@@ -1456,7 +1855,7 @@
         let idx = players.findIndex(player => player.id === pId); // Original index for stable color mapping
         
         let data = [], run = 0; 
-        for (let i = 0; i < 18; i++) { 
+        for (let i = 0; i < holeLabels.length; i++) { 
           let s = p.scores[i]; 
           if (s === null) data.push(null); 
           else { 
@@ -1507,7 +1906,7 @@
             shouldShowLabel = false; // Only show every other label if there are many holes to prevent overlap
           }
           if (shouldShowLabel) {
-            svg.innerHTML += `<text x="${x}" y="${h-pad+13}" fill="var(--subtext)" font-size="9" text-anchor="middle">H${i+1}</text>`;
+            svg.innerHTML += `<text x="${x}" y="${h-pad+13}" fill="var(--subtext)" font-size="9" text-anchor="middle">H${holeLabels[i]}</text>`;
           }
         }
       } 
@@ -1608,7 +2007,7 @@
     function addPlayer() { 
       let input = document.getElementById('newPlayerName'), name = input.value.trim() || `Player ${players.length + 1}`; 
       let defaultFlair = theme === 'spooky' ? spookyFlairs[players.length % spookyFlairs.length] : availableFlairs[players.length % availableFlairs.length];
-      players.push({ id: Date.now(), name: name, flair: defaultFlair, scores: Array(18).fill(null), color: null }); 
+      players.push({ id: Date.now(), name: name, flair: defaultFlair, scores: Array(holeLabels.length).fill(null), color: null }); 
       input.value = ''; 
       saveState(); 
       renderSettings(); 
@@ -1636,6 +2035,7 @@
         date: new Date().toISOString(), 
         course: document.getElementById('courseName').value, 
         pars: pars, 
+        holeLabels: holeLabels,
         players: players,
         notes: roundNotes,
         theme: theme,
@@ -1683,9 +2083,9 @@
       });
       csvRows.push(header.map(escapeCSV));
 
-      // Hole Rows 1-18
-      for (let i = 0; i < 18; i++) {
-        let row = [(i + 1), pars[i]];
+      // Hole Rows
+      for (let i = 0; i < holeLabels.length; i++) {
+        let row = [holeLabels[i], pars[i]];
         players.forEach(p => {
           row.push(p.scores[i] !== null ? p.scores[i] : '-');
         });
@@ -1770,7 +2170,17 @@
               return;
             }
 
-            let newPars = Array(18).fill(3);
+            // Dynamic Hole Detection for imported CSV spreadsheet
+            let maxHole = 18;
+            for (let i = headerIdx + 1; i < lines.length; i++) {
+              let cells = parseCSVLine(lines[i]);
+              let holeNum = parseInt(cells[0]);
+              if (!isNaN(holeNum) && holeNum > maxHole) {
+                maxHole = holeNum;
+              }
+            }
+
+            let newPars = Array(maxHole).fill(3);
             let newPlayers = playerHeaders.map((pStr, idx) => {
               let flair = '', name = pStr;
               let emojiMatch = pStr.match(/^(\p{Extended_Pictographic}|\p{Emoji_Presentation})\s*(.*)$/u);
@@ -1778,13 +2188,15 @@
                 flair = emojiMatch[1];
                 name = emojiMatch[2] || pStr;
               }
-              return { id: Date.now() + idx, name: name, flair: flair, scores: Array(18).fill(null) };
+              return { id: Date.now() + idx, name: name, flair: flair, scores: Array(maxHole).fill(null) };
             });
+
+            let newHoleLabels = Array.from({length: maxHole}, (_, i) => (i + 1).toString());
 
             for (let i = headerIdx + 1; i < lines.length; i++) {
               let cells = parseCSVLine(lines[i]);
               let holeNum = parseInt(cells[0]);
-              if (!isNaN(holeNum) && holeNum >= 1 && holeNum <= 18) {
+              if (!isNaN(holeNum) && holeNum >= 1 && holeNum <= maxHole) {
                 let hIdx = holeNum - 1;
                 let parVal = parseInt(cells[1]);
                 if (!isNaN(parVal)) newPars[hIdx] = parVal;
@@ -1805,6 +2217,7 @@
               document.getElementById('roundNotes').value = roundNotes;
             }
             pars = newPars;
+            holeLabels = newHoleLabels;
             players = newPlayers;
             hiddenPlayers = {};
 
@@ -1828,7 +2241,20 @@
             let data = JSON.parse(evt.target.result);
             if (data.course) document.getElementById('courseName').value = data.course;
             if (Array.isArray(data.pars)) pars = data.pars;
+            if (Array.isArray(data.holeLabels)) {
+              holeLabels = data.holeLabels;
+            } else {
+              let pLen = Array.isArray(pars) ? pars.length : 18;
+              holeLabels = Array.from({length: pLen}, (_, i) => (i + 1).toString());
+            }
             if (Array.isArray(data.players)) players = data.players;
+
+            // Reconcile players scores array lengths just in case
+            players.forEach(p => {
+              if (!p.scores || p.scores.length !== holeLabels.length) {
+                p.scores = resizeArray(p.scores || [], holeLabels.length, null);
+              }
+            });
             if (data.notes !== undefined) {
               roundNotes = data.notes;
               document.getElementById('roundNotes').value = roundNotes;
@@ -1883,11 +2309,13 @@
             }).then(() => {
               renderMediaGrid();
               updateDisplay();
+              renderHoleSetupUI();
               alert("Master round file imported successfully!");
             }).catch(err => {
               console.error("IndexedDB import error:", err);
               renderMediaGrid();
               updateDisplay();
+              renderHoleSetupUI();
               alert("Text data imported, but photo attachments could not be saved to IndexedDB.");
             });
           } catch (err) {
@@ -1899,10 +2327,10 @@
       e.target.value = '';
     }
 
-    function resetRound() { 
-      if (confirm("Reset scores and notes?")) { 
-        players.forEach(p => p.scores = Array(18).fill(null)); 
-        currentHole = 1; 
+    function resetRound() {
+      if (confirm("Reset scores and notes?")) {
+        players.forEach(p => p.scores = Array(holeLabels.length).fill(null));
+        currentHole = 1;
         hiddenPlayers = {}; 
         roundNotes = '';
         document.getElementById('roundNotes').value = '';
@@ -1959,7 +2387,7 @@
               Minimal Disc Golf Pro is built on extreme physical ergonomics, zero-dependency simplicity, and absolute local privacy.
             </div>
             <div style="color:var(--subtext); font-size:0.85rem; line-height:1.5; background:rgba(0,0,0,0.25); padding:10px; border-radius:10px; border:1px solid var(--border);">
-              Special thanks to <strong>betamark</strong>, <strong>zero</strong>, <strong>G Unit the most Solid</strong>, <strong>CMaster, master of the C</strong>, and the <strong>Gemini CLI Agent</strong> for vibe-coding this application into existence this morning! 💖🥏
+              Special thanks to <strong>G Unit the most Solid</strong>, <strong>CMaster, master of the C</strong>, and the <strong>Gemini CLI Agent</strong> for vibe-coding this application into existence this morning! 💖🥏
             </div>
           </div>
         `;
@@ -1978,6 +2406,105 @@
       if (e.target.id === 'infoModal') {
         hideModal();
       }
+    }
+
+    // Swipe Navigation
+    let touchStartX = 0;
+    let touchStartY = 0;
+    let touchEndX = 0;
+    let touchEndY = 0;
+    let isMouseDown = false;
+
+    function isInteractiveElement(el) {
+      if (!el || !el.tagName) return false;
+      return el.id === 'graphSvg' || 
+             el.id === 'chartBox' || 
+             el.tagName === 'INPUT' || 
+             el.tagName === 'SELECT' || 
+             el.tagName === 'TEXTAREA' || 
+             (el.classList && el.classList.contains('modal-content')) || 
+             el.id === 'overviewTable' || 
+             el.id === 'playerFlairsContainer' || 
+             el.id === 'titleEmojiGrid' ||
+             (el.closest && (
+               el.closest('.table-par-control') ||
+               el.closest('button') ||
+               el.closest('.color-swatch-bar') ||
+               el.closest('.emoji-grid') ||
+               el.closest('#holeSetupList')
+             ));
+    }
+
+    document.addEventListener('touchstart', e => {
+      let path = e.composedPath() || [];
+      let ignoreSwipe = path.some(isInteractiveElement);
+      if (ignoreSwipe) {
+        touchStartX = 0;
+        touchStartY = 0;
+        return;
+      }
+      touchStartX = e.changedTouches[0].screenX;
+      touchStartY = e.changedTouches[0].screenY;
+    }, { passive: true });
+
+    document.addEventListener('touchend', e => {
+      if (touchStartX === 0 && touchStartY === 0) return;
+      touchEndX = e.changedTouches[0].screenX;
+      touchEndY = e.changedTouches[0].screenY;
+      handleSwipeGesture();
+    }, { passive: true });
+
+    document.addEventListener('mousedown', e => {
+      let path = e.composedPath() || [];
+      let ignoreSwipe = path.some(isInteractiveElement);
+      if (ignoreSwipe) {
+        isMouseDown = false;
+        touchStartX = 0;
+        touchStartY = 0;
+        return;
+      }
+      isMouseDown = true;
+      touchStartX = e.screenX;
+      touchStartY = e.screenY;
+    });
+
+    document.addEventListener('mouseup', e => {
+      if (!isMouseDown) return;
+      isMouseDown = false;
+      touchEndX = e.screenX;
+      touchEndY = e.screenY;
+      handleSwipeGesture();
+    });
+
+    function handleSwipeGesture() {
+      let deltaX = touchEndX - touchStartX;
+      let deltaY = touchEndY - touchStartY;
+      
+      if (Math.abs(deltaX) > 60 && Math.abs(deltaY) < 50) {
+        let tabs = ['Track', 'Overview', 'Graph', 'Settings'];
+        let activeTab = null;
+        tabs.forEach(t => {
+          let el = document.getElementById('tab' + t);
+          if (el && !el.classList.contains('hidden')) {
+            activeTab = t;
+          }
+        });
+        
+        if (activeTab) {
+          let idx = tabs.indexOf(activeTab);
+          if (deltaX < 0) {
+            if (idx < tabs.length - 1) {
+              switchTab(tabs[idx + 1]);
+            }
+          } else {
+            if (idx > 0) {
+              switchTab(tabs[idx - 1]);
+            }
+          }
+        }
+      }
+      touchStartX = 0;
+      touchStartY = 0;
     }
 
     loadState();

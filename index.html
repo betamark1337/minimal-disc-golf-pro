@@ -13,7 +13,16 @@
       box-sizing: border-box;
     }
 
-    html, body {
+    html {
+      font-size: calc(16px * var(--font-scale, 1.0));
+      width: 100%;
+      max-width: 100%;
+      overflow-x: hidden;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
       width: 100%;
       max-width: 100%;
       overflow-x: hidden;
@@ -57,7 +66,7 @@
       max-width: 550px; 
       margin-left: auto; 
       margin-right: auto; 
-      font-size: calc(1.05rem * var(--font-scale, 1.0)); 
+      font-size: 1.05rem; 
     }
 
     button, .score-tap, .color-swatch, .emoji-item, .collapse-header, .table-par-btn, .legend-item {
@@ -88,12 +97,12 @@
     .card { background: var(--card); border-radius: 16px; padding: 16px; margin-bottom: 12px; border: 1px solid var(--border); width: 100%; }
     .row { display: flex; justify-content: space-between; align-items: center; margin: 8px 0; }
     
-    button { background: var(--btn-bg); color: var(--text); border: 1px solid var(--border); border-radius: 12px; font-size: calc(1.1rem * var(--font-scale, 1.0)); font-weight: bold; min-height: calc(52px * var(--app-scale, 1.0)); padding: 10px 16px; touch-action: manipulation; cursor: pointer; }
+    button { background: var(--btn-bg); color: var(--text); border: 1px solid var(--border); border-radius: 12px; font-size: 1.1rem; font-weight: bold; min-height: calc(52px * var(--app-scale, 1.0)); padding: 10px 16px; touch-action: manipulation; cursor: pointer; }
     button:active { transform: scale(0.96); opacity: 0.9; }
     button.primary { background: var(--accent); color: #000; border: none; }
     
-    .touch-btn { min-height: calc(58px * var(--app-scale, 1.0)); min-width: calc(58px * var(--app-scale, 1.0)); font-size: calc(1.6rem * var(--font-scale, 1.0)); }
-    .par-btn { min-height: calc(48px * var(--app-scale, 1.0)); min-width: calc(48px * var(--app-scale, 1.0)); font-size: calc(1.3rem * var(--font-scale, 1.0)); padding: 0; }
+    .touch-btn { min-height: calc(58px * var(--app-scale, 1.0)); min-width: calc(58px * var(--app-scale, 1.0)); font-size: 1.6rem; }
+    .par-btn { min-height: calc(48px * var(--app-scale, 1.0)); min-width: calc(48px * var(--app-scale, 1.0)); font-size: 1.3rem; padding: 0; }
 
     .tab-nav { display: flex; gap: 6px; margin-bottom: 12px; width: 100%; }
     .tab-nav button { flex: 1; font-size: 0.95rem; padding: 10px 2px; }
@@ -384,6 +393,8 @@
     <div class="chart-container" id="chartBox">
       <svg id="graphSvg" viewBox="0 0 500 280" preserveAspectRatio="none"></svg>
     </div>
+    <!-- Decoupled native HTML legend to prevent text stretching/squishing -->
+    <div id="graphLegendContainer" style="display: flex; flex-wrap: wrap; gap: 10px 14px; font-size: 0.9rem; justify-content: center; user-select: none; -webkit-user-select: none; margin-top: 12px; padding: 4px;"></div>
     <div class="toggle-group" style="margin-top: 16px;"><button id="btnModeRel" class="primary" onclick="setGraphMode('relative')" style="flex:1;">Relative (+/-)</button><button id="btnModeCum" onclick="setGraphMode('cumulative')" style="flex:1;">Cumulative</button></div>
     <div class="toggle-group"><label><input type="checkbox" id="chkGrid" checked onchange="renderGraph()"> Gridlines</label><label><input type="checkbox" id="chkLabels" checked onchange="renderGraph()"> Labels</label><label><input type="checkbox" id="chkNames" checked onchange="renderGraph()"> Names</label></div>
   </div>
@@ -1013,20 +1024,18 @@
         alert("A course must have at least 1 hole!");
         return;
       }
-      if (confirm(`Are you sure you want to delete Hole ${holeLabels[idx]}?`)) {
-        holeLabels.splice(idx, 1);
-        pars.splice(idx, 1);
-        players.forEach(p => p.scores.splice(idx, 1));
-        if (currentHole > holeLabels.length) {
-          currentHole = holeLabels.length;
-        }
-        saveState();
-        updateDisplay();
-        if (document.getElementById('tabOverview') && !document.getElementById('tabOverview').classList.contains('hidden')) {
-          renderOverview();
-        }
-        renderHoleSetupUI();
+      holeLabels.splice(idx, 1);
+      pars.splice(idx, 1);
+      players.forEach(p => p.scores.splice(idx, 1));
+      if (currentHole > holeLabels.length) {
+        currentHole = holeLabels.length;
       }
+      saveState();
+      updateDisplay();
+      if (document.getElementById('tabOverview') && !document.getElementById('tabOverview').classList.contains('hidden')) {
+        renderOverview();
+      }
+      renderHoleSetupUI();
     }
 
     function getPlayerColor(i) { 
@@ -1245,6 +1254,8 @@
             }
           });
           currentHole = 1;
+          let select = document.getElementById('quickCourseCatalogSelect');
+          if (select) select.selectedIndex = 0;
           saveState();
           updateDisplay();
           renderOverview();
@@ -2099,28 +2110,21 @@
         }); 
       }); 
 
-      // Render Legend (Always Visible)
-      let kY = 14, kX = pad; 
-      series.forEach(s => { 
-        let isDisabled = hiddenPlayers[s.id];
-        let opacity = isDisabled ? '0.35' : '1.0';
-        
-        let displayName = showN ? `${s.flair}${s.name}` : (s.flair || '');
-        let itemWidth = showN ? (displayName.length * 7.5) + 32 : (displayName ? 12 : 0) + 24;
-
-        if (kX + itemWidth > w - 12) {
-          kX = pad;
-          kY += 18;
-        }
-
-        svg.innerHTML += `
-          <g class="legend-item ${isDisabled ? 'disabled-player' : ''}" onclick="togglePlayerGraph(${s.id})">
-            <rect x="${kX}" y="${kY}" width="12" height="12" fill="${s.color}" rx="3" opacity="${opacity}" />
-            <text x="${kX+16}" y="${kY+10}" fill="var(--text)" font-size="11" font-weight="bold" opacity="${opacity}">${displayName}</text>
-          </g>
-        `; 
-        kX += itemWidth + 12; 
-      }); 
+      // Render Legend (Always Visible & Symmetrically HTML-decoupled)
+      let legCont = document.getElementById('graphLegendContainer');
+      if (legCont) {
+        legCont.innerHTML = series.map(s => {
+          let isDisabled = hiddenPlayers[s.id];
+          let opacity = isDisabled ? '0.4' : '1.0';
+          let displayName = showN ? `${s.flair || ''} ${s.name}` : (s.flair || '👤');
+          return `
+            <div onclick="togglePlayerGraph(${s.id})" class="legend-item" style="display: flex; align-items: center; gap: 6px; cursor: pointer; opacity: ${opacity}; font-weight: bold; background: var(--btn-bg); padding: 6px 12px; border-radius: 8px; border: 1px solid var(--border); user-select: none;">
+              <span style="display: inline-block; width: 12px; height: 12px; background: ${s.color}; border-radius: 3px; flex-shrink: 0;"></span>
+              <span style="color: var(--text); font-size: 0.85rem; white-space: nowrap;">${displayName}</span>
+            </div>
+          `;
+        }).join('');
+      } 
     }
 
     function renderEmojiGrids() {
@@ -2578,9 +2582,7 @@
 
     function isInteractiveElement(el) {
       if (!el || !el.tagName) return false;
-      return el.id === 'graphSvg' || 
-             el.id === 'chartBox' || 
-             el.tagName === 'INPUT' || 
+      return el.tagName === 'INPUT' || 
              el.tagName === 'SELECT' || 
              el.tagName === 'TEXTAREA' || 
              (el.classList && el.classList.contains('modal-content')) || 

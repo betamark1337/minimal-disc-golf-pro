@@ -342,7 +342,6 @@
         <div id="holeLeftSlot" style="display:flex; align-items:center; min-width: 58px;"></div>
         <div id="holeLeftLine" style="flex:1; border-bottom:1px dashed var(--border); margin:0 12px; display:none;"></div>
         <div id="holeCenterSlot" style="text-align:center; min-width:110px; display:flex; flex-direction:column; justify-content:center; align-items:center; flex-shrink: 0;">
-          <span id="holeFlairDisplay" style="font-size: 1.25rem; line-height: 1; margin-bottom: 2px;"></span>
           <span style="color:var(--subtext); font-size: 0.75rem; display:block; line-height: 1; font-weight: bold; letter-spacing: 0.5px;">HOLE</span>
           <strong id="holeNumberDisplay" style="font-size: calc(3.2rem * var(--font-scale, 1.0)); line-height: 1.0; font-weight: 900; color: var(--accent);">1</strong>
         </div>
@@ -1261,7 +1260,7 @@
         let courses = e.target.result;
         let quickSelect = document.getElementById('quickCourseCatalogSelect');
         if (quickSelect) {
-          quickSelect.innerHTML = '<option value="" disabled selected>Load Saved Preset...</option>';
+          quickSelect.innerHTML = '<option value="" disabled selected>Load</option>';
           courses.forEach(c => {
             quickSelect.innerHTML += `<option value="${c.id}">${c.name}</option>`;
           });
@@ -1670,12 +1669,12 @@
             saveCont.style.order = 1;
             header.appendChild(saveCont);
           }
-          courseName.style.order = 2;
+          flairBox.style.order = 2;
+          header.appendChild(flairBox);
+          courseName.style.order = 3;
           courseName.style.fontSize = '1.1rem';
           courseName.style.flex = '1';
           header.appendChild(courseName);
-          flairBox.style.order = 3;
-          header.appendChild(flairBox);
           if (loadCont) {
             loadCont.style.order = 4;
             loadCont.style.flex = '0 0 85px';
@@ -1729,10 +1728,6 @@
 
     function updateDisplay() {
       saveState();
-      let flairDisplay = document.getElementById('holeFlairDisplay');
-      if (flairDisplay) {
-        flairDisplay.innerText = titleFlair || '';
-      }
       let numDisplay = document.getElementById('holeNumberDisplay');
       if (numDisplay) {
         numDisplay.innerText = holeLabels[currentHole - 1];

@@ -170,7 +170,10 @@
       transform: rotate(-90deg);
     }
 
-    .chart-container { width: 100%; position: relative; resize: vertical; overflow: hidden; min-height: 220px; height: 280px; max-height: 500px; border: 1px dashed var(--border); border-radius: 8px; padding: 4px; }
+    .chart-container { width: 100%; position: relative; resize: vertical; overflow: hidden; min-height: 220px; height: 280px; max-height: 500px; border: 1px dashed var(--border); border-radius: 8px; padding: 4px; transition: height 0.2s; }
+    @media (orientation: landscape) and (max-height: 550px) {
+      .chart-container { height: 180px; min-height: 140px; }
+    }
     svg { width: 100%; height: 100%; overflow: visible; display: block; }
     .toggle-group { display: flex; flex-wrap: wrap; gap: 8px; font-size: 0.95rem; margin-top: 8px; width: 100%; }
     .toggle-group label { display: flex; align-items: center; gap: 6px; color: var(--subtext); cursor: pointer; }
@@ -282,13 +285,17 @@
 <body>
 
   <div class="header" id="appHeaderContainer" style="display:flex; flex-direction:column; gap:6px; align-items:center; width:100%;">
-    <input type="text" id="courseName" class="course-input" value="Chippewa Banks Disc Golf Course" onchange="saveState()" style="border-bottom: 2px solid var(--border); margin-bottom: 0; flex: 1; min-width: 0; order: 1;">
+    <!-- Top Row for Centered mode (Title & Flair) -->
+    <div id="headerTitleRow" style="display:flex; align-items:center; gap:8px; width:100%; order: 1;">
+      <div id="headerTitleFlairBox" onclick="switchTab('Settings'); if(settingsCollapsed.interfaceTheme) toggleSettingsSection('interfaceTheme'); if(subCollapsed.flairsSub) toggleSubSection('flairsSub');" style="cursor:pointer; font-size:1.4rem; min-width:42px; height:42px; display:flex; align-items:center; justify-content:center; background:var(--btn-bg); border:1px solid var(--border); border-radius:10px; user-select:none; -webkit-user-select:none; flex-shrink: 0; order: 1;" title="Click to edit scorecard flair">🥏</div>
+      <input type="text" id="courseName" class="course-input" value="Chippewa Banks Disc Golf Course" onchange="saveState()" style="border-bottom: 2px solid var(--border); margin-bottom: 0; flex: 1; min-width: 0; order: 2;">
+    </div>
     
     <!-- Wrapper to support centered stacked layout vs left/right row layout -->
     <div id="headerQuickControlWrapper" style="display:flex; gap:8px; width:100%; max-width:440px; margin-top: 4px; padding: 0 4px; order: 2; flex-shrink: 0;">
       <div id="headerLoadContainer" style="flex:1; min-width: 0; order: 1;">
         <select id="quickCourseCatalogSelect" onchange="loadCoursePreset(this.value)" style="width:100%; min-height:38px; height:38px; font-size:0.85rem; padding:0 8px; border-radius:10px;" title="Quick select course preset">
-          <option value="" disabled selected>Load Saved Preset...</option>
+          <option value="" disabled selected>Load</option>
         </select>
       </div>
       <div id="headerSaveContainer" style="order: 2; flex-shrink: 0;">
@@ -408,7 +415,7 @@
         <!-- Sub-section 2: Default Par Setup -->
         <div style="margin-bottom: 12px; border: 1px solid var(--border); padding: 12px; border-radius: 12px; background: rgba(0,0,0,0.12);">
           <div class="collapse-header" onclick="toggleSubSection('defaultPar')" style="padding: 2px 0;">
-            <h4 style="font-size: 1.05rem; margin: 0; color: var(--accent); display:flex; align-items:center; gap:6px;">🕳️ Default Par Setup</h4>
+            <h4 style="font-size: 1.05rem; margin: 0; color: var(--accent); display:flex; align-items:center; gap:6px;">#️⃣ Default Par Setup</h4>
             <span id="icon-sub-defaultPar" class="collapse-icon">▾</span>
           </div>
           <div id="sub-defaultPar" style="margin-top: 12px;" class="hidden">
@@ -445,7 +452,7 @@
         <!-- Sub-section 4: Course Layout Manager -->
         <div style="margin-bottom: 4px; border: 1px solid var(--border); padding: 12px; border-radius: 12px; background: rgba(0,0,0,0.12);">
           <div class="collapse-header" onclick="toggleSubSection('layoutManager')" style="padding: 2px 0;">
-            <h4 style="font-size: 1.05rem; margin: 0; color: var(--accent); display:flex; align-items:center; gap:6px;">👯 Course Layout Manager</h4>
+            <h4 style="font-size: 1.05rem; margin: 0; color: var(--accent); display:flex; align-items:center; gap:6px;">⛳ Course Layout Manager</h4>
             <span id="icon-sub-layoutManager" class="collapse-icon">▾</span>
           </div>
           <div id="sub-layoutManager" style="margin-top: 12px;" class="hidden">
@@ -612,10 +619,15 @@
         <span id="icon-dataExport" class="collapse-icon">▾</span>
       </div>
       <div id="sec-dataExport" style="margin-top: 12px;" class="hidden">
-        <!-- Past Rounds History -->
-        <h4 style="font-size: 1.1rem; margin: 12px 0 8px 0; color: var(--accent);">Past Rounds</h4>
-        <div id="roundHistoryList" style="margin-bottom: 16px; font-size: 0.9rem; color: var(--subtext);">
-          No history yet.
+        <!-- Sub-section: Past Rounds -->
+        <div style="margin-bottom: 12px; border: 1px solid var(--border); padding: 12px; border-radius: 12px; background: rgba(0,0,0,0.12);">
+          <div class="collapse-header" onclick="toggleSubSection('pastRoundsSub')" style="padding: 2px 0;">
+            <h4 style="font-size: 1.05rem; margin: 0; color: var(--accent); display:flex; align-items:center; gap:6px;">🕒 Past Rounds History</h4>
+            <span id="icon-sub-pastRoundsSub" class="collapse-icon">▾</span>
+          </div>
+          <div id="sub-pastRoundsSub" style="margin-top: 12px;" class="hidden">
+            <div id="roundHistoryList" style="display:flex; flex-direction:column; gap:8px;"></div>
+          </div>
         </div>
 
         <hr style="border-color: var(--border); margin: 16px 0;">
@@ -898,7 +910,12 @@
       rosterMgmt: true,
       defaultPar: true,
       layoutEditor: true,
-      layoutManager: true
+      layoutManager: true,
+      displayScaling: true,
+      interfaceModeSub: true,
+      themesAccents: true,
+      flairsSub: true,
+      pastRoundsSub: true
     };
 
     function toggleSubSection(subKey) {
@@ -1148,6 +1165,11 @@
         preview.style.fontSize = titleFlair ? '1.8rem' : '0.85rem';
         preview.style.color = titleFlair ? 'var(--text)' : 'var(--subtext)';
       }
+      let headerBox = document.getElementById('headerTitleFlairBox');
+      if (headerBox) {
+        headerBox.innerText = titleFlair || '🥏';
+        headerBox.style.opacity = titleFlair ? '1' : '0.4';
+      }
       renderEmojiGrids();
       updateDisplay();
     }
@@ -1393,25 +1415,62 @@
       };
     }
 
+    let expandedCourses = {};
+
+    function toggleCourseGroup(cName) {
+      expandedCourses[cName] = !expandedCourses[cName];
+      renderRoundHistory();
+    }
+
     function renderRoundHistory() {
       if (!db) return;
       db.transaction(["rounds"], "readonly").objectStore("rounds").getAll().onsuccess = (e) => {
         let rounds = e.target.result;
         let list = document.getElementById('roundHistoryList');
+        if (!list) return;
         if (rounds.length === 0) {
-          list.innerHTML = 'No history yet.';
+          list.innerHTML = '<div style="font-size:0.85rem; color:var(--subtext); text-align:center; padding:12px;">No past rounds found.</div>';
           return;
         }
-        list.innerHTML = rounds.map(r => `
-          <div style="margin-bottom: 12px; padding: 12px; background:var(--btn-bg); border-radius: 12px; border: 1px solid var(--border); display: flex; flex-direction: column; gap: 8px;">
-            <div style="font-weight: bold; font-size: 0.95rem; color: var(--text);">${r.course}</div>
-            <div style="font-size: 0.8rem; color: var(--subtext);">${new Date(r.date).toLocaleString()}</div>
-            <div style="display: flex; gap: 8px; margin-top: 4px;">
-              <button onclick="loadRoundFromHistory(${r.id})" style="flex: 1; min-height: 32px; height: 32px; font-size: 0.8rem; padding: 0 10px; border-radius: 6px; background:#112233; color:#66b2ff; border-color:#224466; cursor:pointer;">📂 Load Round</button>
-              <button onclick="deleteRoundFromHistory(${r.id})" style="min-height: 32px; height: 32px; font-size: 0.8rem; padding: 0 10px; border-radius: 6px; background:#331111; color:#ff6666; border-color:#662222; cursor:pointer;" title="Delete Round">🗑️ Delete</button>
+
+        // Group rounds by course name
+        let groups = {};
+        rounds.forEach(r => {
+          let cName = r.course || 'Unknown Course';
+          if (!groups[cName]) groups[cName] = [];
+          groups[cName].push(r);
+        });
+
+        // Generate HTML with collapsible groups
+        list.innerHTML = Object.keys(groups).map(cName => {
+          let courseRounds = groups[cName];
+          // Sort within group: newest first
+          courseRounds.sort((a, b) => new Date(b.date) - new Date(a.date));
+          
+          let isExpanded = expandedCourses[cName] || false;
+          
+          let roundsHTML = courseRounds.map(r => `
+            <div style="margin-bottom: 8px; padding: 10px; background:rgba(255,255,255,0.02); border-radius: 10px; border: 1px solid var(--border); display: flex; flex-direction: column; gap: 6px;">
+              <div style="font-size: 0.8rem; color: var(--subtext);">${new Date(r.date).toLocaleString()}</div>
+              <div style="display: flex; gap: 8px; margin-top: 2px;">
+                <button onclick="loadRoundFromHistory(${r.id})" style="flex: 1; min-height: 32px; height: 32px; font-size: 0.8rem; padding: 0 10px; border-radius: 6px; background:#112233; color:#66b2ff; border-color:#224466; cursor:pointer;">📂 Load</button>
+                <button onclick="deleteRoundFromHistory(${r.id})" style="min-height: 32px; height: 32px; font-size: 0.8rem; padding: 0 10px; border-radius: 6px; background:#331111; color:#ff6666; border-color:#662222; cursor:pointer;" title="Delete Round">🗑️ Delete</button>
+              </div>
             </div>
-          </div>
-        `).join('');
+          `).join('');
+
+          return `
+            <div style="margin-bottom: 8px; border: 1px solid var(--border); border-radius: 12px; background: rgba(0,0,0,0.15); overflow:hidden;">
+              <div onclick="toggleCourseGroup('${cName.replace(/'/g, "\\'")}')" style="display:flex; justify-content:space-between; align-items:center; padding:10px 14px; background: rgba(255,255,255,0.03); cursor:pointer; user-select:none;">
+                <span style="font-weight:bold; font-size:0.9rem; color:var(--accent);">${cName} (${courseRounds.length})</span>
+                <span style="font-size:0.9rem; color:var(--subtext); transition: transform 0.2s;" class="${isExpanded ? '' : 'collapsed'}">${isExpanded ? '▾' : '▸'}</span>
+              </div>
+              <div style="padding: 10px 12px;" class="${isExpanded ? '' : 'hidden'}">
+                ${roundsHTML}
+              </div>
+            </div>
+          `;
+        }).join('');
       };
     }
     
@@ -1552,18 +1611,26 @@
 
       // Dynamically reposition top-bar preset loaders
       let header = document.getElementById('appHeaderContainer');
+      let titleRow = document.getElementById('headerTitleRow');
       let courseName = document.getElementById('courseName');
+      let flairBox = document.getElementById('headerTitleFlairBox');
       let loadCont = document.getElementById('headerLoadContainer');
       let saveCont = document.getElementById('headerSaveContainer');
       let wrapper = document.getElementById('headerQuickControlWrapper');
 
-      if (header && courseName) {
+      if (header && courseName && flairBox) {
         if (mode === 'normal') {
           header.style.flexDirection = 'column';
           header.style.padding = '0';
-          courseName.style.order = 1;
           courseName.style.fontSize = '1.5rem';
-          courseName.style.width = '100%';
+          courseName.style.order = 2;
+          flairBox.style.order = 1;
+          if (titleRow) {
+            titleRow.appendChild(flairBox);
+            titleRow.appendChild(courseName);
+            titleRow.style.display = 'flex';
+            header.appendChild(titleRow);
+          }
           if (wrapper && loadCont && saveCont) {
             wrapper.appendChild(loadCont);
             wrapper.appendChild(saveCont);
@@ -1574,36 +1641,44 @@
           header.style.flexDirection = 'row';
           header.style.alignItems = 'center';
           header.style.padding = '0 4px';
+          header.style.gap = '6px';
+          if (titleRow) titleRow.style.display = 'none';
           if (wrapper) wrapper.style.display = 'none';
           if (loadCont) {
             loadCont.style.order = 1;
-            loadCont.style.flex = '0 0 115px';
+            loadCont.style.flex = '0 0 85px';
             header.appendChild(loadCont);
           }
-          courseName.style.order = 2;
-          courseName.style.fontSize = '1.15rem';
+          flairBox.style.order = 2;
+          header.appendChild(flairBox);
+          courseName.style.order = 3;
+          courseName.style.fontSize = '1.1rem';
           courseName.style.flex = '1';
           header.appendChild(courseName);
           if (saveCont) {
-            saveCont.style.order = 3;
+            saveCont.style.order = 4;
             header.appendChild(saveCont);
           }
         } else if (mode === 'right') {
           header.style.flexDirection = 'row';
           header.style.alignItems = 'center';
           header.style.padding = '0 4px';
+          header.style.gap = '6px';
+          if (titleRow) titleRow.style.display = 'none';
           if (wrapper) wrapper.style.display = 'none';
           if (saveCont) {
             saveCont.style.order = 1;
             header.appendChild(saveCont);
           }
           courseName.style.order = 2;
-          courseName.style.fontSize = '1.15rem';
+          courseName.style.fontSize = '1.1rem';
           courseName.style.flex = '1';
           header.appendChild(courseName);
+          flairBox.style.order = 3;
+          header.appendChild(flairBox);
           if (loadCont) {
-            loadCont.style.order = 3;
-            loadCont.style.flex = '0 0 115px';
+            loadCont.style.order = 4;
+            loadCont.style.flex = '0 0 85px';
             header.appendChild(loadCont);
           }
         }

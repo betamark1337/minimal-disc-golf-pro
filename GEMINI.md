@@ -8,9 +8,16 @@ Welcome, Future AI Agent. You are taking over a project built on extreme aesthet
 
 ```text
 📦 Minimal Disc Golf Pro (Main Branch)
- ├── 🏷️ v1.1.8 (Current State)
+ ├── 🏷️ v1.2.0 (Current State)
+ │    ├── Local Course Presets, Round History database, column overview quick-scoring
+ │    ├── Dynamic Course Layouts & Letter Holes (e.g. 18A, 18B)
+ │    ├── Independent Typography and Interface scaling sliders
+ │    ├── Mobile Landscape Graph responsive auto-scaling
+ │    └── Symmetrical Ergonomic Headers context-sensitive to hand modes
+ │
+ ├── 🏷️ v1.1.8 (Archived Color Customization)
  │    ├── Custom player name color selection (per-player color pickers)
- │    └── Active root file index.html compiled with 0 syntax errors
+ │    └── Preserved at /releases/v1.1.8-player-color-customization/index.html
  │
  ├── 🏷️ v1.1.7 (Archived Layered Graph)
  │    ├── Dynamic plot line layering (activated/selected players are redrawn on top of the graph)
@@ -52,14 +59,6 @@ Welcome, Future AI Agent. You are taking over a project built on extreme aesthet
  ├── 🏷️ v1.0.0 (Gold Master Archive)
  │    ├── Preserved unmodified original client-side webapp at v1.0.0.html
  │    └── Preserved at /releases/v1.0.0-gold-master/index.html
- │
- ├── 🏷️ v1.2.0 (Upcoming Web Features)
- │    ├── Local Course Presets (saving multiple layouts, custom pars per course)
- │    ├── Round History (save multiple rounds in local storage with simple load UI)
- │    ├── Advanced Stats (average strokes per par type, personal course records)
- │    ├── Quick-Column Overview Scoring (Tapping player name in Overview activates direct +/- steppers for their score column, tapping 'PAR' reverts)
- │    ├── Help & Pro-tips Panel (interactive guide describing line re-ordering, ergonomics, and advanced features)
- │    └── Council Easter Egg System (secret '🛸' button launching creative credits modal)
  │
  ├── 🏷️ v1.2.1 (Upcoming UX Refinements)
  │    ├── Remove betamark and zero from special thanks for increased pseudonymity

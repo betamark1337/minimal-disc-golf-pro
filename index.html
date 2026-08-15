@@ -281,15 +281,19 @@
 </head>
 <body>
 
-  <div class="header" style="display:flex; flex-direction:column; gap:6px; align-items:center;">
-    <input type="text" id="courseName" class="course-input" value="Chippewa Banks Disc Golf Course" onchange="saveState()" style="border-bottom: 2px solid var(--border); margin-bottom: 0;">
+  <div class="header" id="appHeaderContainer" style="display:flex; flex-direction:column; gap:6px; align-items:center; width:100%;">
+    <input type="text" id="courseName" class="course-input" value="Chippewa Banks Disc Golf Course" onchange="saveState()" style="border-bottom: 2px solid var(--border); margin-bottom: 0; flex: 1; min-width: 0; order: 1;">
     
-    <!-- Quick Course Preset Load Select -->
-    <div style="display:flex; gap:8px; width:100%; max-width:440px; margin-top: 4px; padding: 0 4px;">
-      <select id="quickCourseCatalogSelect" onchange="loadCoursePreset(this.value)" style="flex:1; min-height:38px; height:38px; font-size:0.85rem; padding:0 8px; border-radius:10px;" title="Quick select course preset">
-        <option value="" disabled selected>Load Saved Preset...</option>
-      </select>
-      <button onclick="saveCoursePreset()" style="font-size:0.8rem; min-height:38px; height:38px; padding:0 12px; border-radius:10px; display:flex; align-items:center; gap:4px;" title="Save current layout as preset">💾 Save</button>
+    <!-- Wrapper to support centered stacked layout vs left/right row layout -->
+    <div id="headerQuickControlWrapper" style="display:flex; gap:8px; width:100%; max-width:440px; margin-top: 4px; padding: 0 4px; order: 2; flex-shrink: 0;">
+      <div id="headerLoadContainer" style="flex:1; min-width: 0; order: 1;">
+        <select id="quickCourseCatalogSelect" onchange="loadCoursePreset(this.value)" style="width:100%; min-height:38px; height:38px; font-size:0.85rem; padding:0 8px; border-radius:10px;" title="Quick select course preset">
+          <option value="" disabled selected>Load Saved Preset...</option>
+        </select>
+      </div>
+      <div id="headerSaveContainer" style="order: 2; flex-shrink: 0;">
+        <button onclick="saveCoursePreset()" style="font-size:0.8rem; min-height:38px; height:38px; padding:0 12px; border-radius:10px; display:flex; align-items:center; gap:4px;" title="Save current layout as preset">💾 Save</button>
+      </div>
     </div>
   </div>
 
@@ -458,118 +462,146 @@
         <span id="icon-interfaceTheme" class="collapse-icon">▾</span>
       </div>
       <div id="sec-interfaceTheme" style="margin-top: 12px;" class="hidden">
-        <!-- Interface Scale Slider -->
-        <div style="margin-bottom: 16px; padding: 12px; border: 1px solid var(--border); border-radius: 10px; background: rgba(0,0,0,0.15);">
-          <div style="font-weight: bold; color: var(--accent); font-size: 0.95rem; margin-bottom: 8px; display:flex; justify-content:space-between;">
-            <span>🔍 Interface Scaling</span>
-            <span id="scaleValueDisplay" style="color:var(--text); font-weight: bold;">1.00x</span>
+        <!-- Sub-section 1: Display & Typography Scaling -->
+        <div style="margin-bottom: 12px; border: 1px solid var(--border); padding: 12px; border-radius: 12px; background: rgba(0,0,0,0.12);">
+          <div class="collapse-header" onclick="toggleSubSection('displayScaling')" style="padding: 2px 0;">
+            <h4 style="font-size: 1.05rem; margin: 0; color: var(--accent); display:flex; align-items:center; gap:6px;">🔍 Display & Font Scaling</h4>
+            <span id="icon-sub-displayScaling" class="collapse-icon">▾</span>
           </div>
-          <input type="range" id="uiScale" min="0.8" max="1.5" step="0.05" value="1.0" oninput="setAppScale(this.value)" style="width:100%; cursor:pointer;">
-        </div>
+          <div id="sub-displayScaling" style="margin-top: 12px;" class="hidden">
+            <!-- Interface Scale Slider -->
+            <div style="margin-bottom: 12px; padding: 12px; border: 1px solid var(--border); border-radius: 10px; background: rgba(0,0,0,0.15);">
+              <div style="font-weight: bold; color: var(--accent); font-size: 0.9rem; margin-bottom: 8px; display:flex; justify-content:space-between;">
+                <span>🔍 Interface Scaling</span>
+                <span id="scaleValueDisplay" style="color:var(--text); font-weight: bold;">1.00x</span>
+              </div>
+              <input type="range" id="uiScale" min="0.8" max="1.5" step="0.05" value="1.0" oninput="setAppScale(this.value)" style="width:100%; cursor:pointer;">
+            </div>
 
-        <!-- Font Size Slider -->
-        <div style="margin-bottom: 16px; padding: 12px; border: 1px solid var(--border); border-radius: 10px; background: rgba(0,0,0,0.15);">
-          <div style="font-weight: bold; color: var(--accent); font-size: 0.95rem; margin-bottom: 8px; display:flex; justify-content:space-between;">
-            <span>🔤 Font & Label Size</span>
-            <span id="fontValueDisplay" style="color:var(--text); font-weight: bold;">1.00x</span>
-          </div>
-          <input type="range" id="fontScale" min="0.8" max="1.5" step="0.05" value="1.0" oninput="setFontScale(this.value)" style="width:100%; cursor:pointer;">
-        </div>
+            <!-- Font Size Slider -->
+            <div style="margin-bottom: 12px; padding: 12px; border: 1px solid var(--border); border-radius: 10px; background: rgba(0,0,0,0.15);">
+              <div style="font-weight: bold; color: var(--accent); font-size: 0.9rem; margin-bottom: 8px; display:flex; justify-content:space-between;">
+                <span>🔤 Font & Label Size</span>
+                <span id="fontValueDisplay" style="color:var(--text); font-weight: bold;">1.00x</span>
+              </div>
+              <input type="range" id="fontScale" min="0.8" max="1.5" step="0.05" value="1.0" oninput="setFontScale(this.value)" style="width:100%; cursor:pointer;">
+            </div>
 
-        <!-- Auto-Theme Player Colors Checkbox -->
-        <div style="margin-bottom: 16px; display:flex; align-items:center; gap:8px;">
-          <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:0.95rem; color:var(--text); user-select:none;">
-            <input type="checkbox" id="chkAutoThemeColors" onchange="setAutoThemeColors(this.checked)" style="width:20px; height:20px; cursor:pointer;">
-            Auto-Theme Player Colors
-          </label>
-        </div>
-
-        <!-- Interface Mode -->
-        <h4 style="font-size: 1.1rem; margin: 12px 0 8px 0; color: var(--accent);">Interface Mode</h4>
-        <div class="toggle-group" style="margin-bottom: 16px;">
-          <button id="btnLeft" class="primary" onclick="setHandedness('left')" style="flex:1; font-size:0.9rem;">Left Ergonomic</button>
-          <button id="btnNormal" onclick="setHandedness('normal')" style="flex:1; font-size:0.9rem;">Centered</button>
-          <button id="btnRight" onclick="setHandedness('right')" style="flex:1; font-size:0.9rem;">Right Ergonomic</button>
-        </div>
-        
-        <hr style="border-color: var(--border); margin: 16px 0;">
-
-        <!-- Theme Selection -->
-        <h4 style="font-size: 1.1rem; margin: 0 0 8px 0; color: var(--accent);">Theme Selection</h4>
-        <div class="toggle-group theme-btn-group" style="margin-bottom: 16px;">
-          <button id="theme-btn-default" onclick="setTheme('default')" style="font-size:0.85rem;">Cobalt Dark</button>
-          <button id="theme-btn-slate" onclick="setTheme('slate')" style="font-size:0.85rem;">Slate Gray</button>
-          <button id="theme-btn-teal" onclick="setTheme('teal')" style="font-size:0.85rem;">Teal Mint</button>
-          <button id="theme-btn-spooky" onclick="setTheme('spooky')" style="font-size:0.85rem;">🎃 Spooky</button>
-          <button id="theme-btn-forest" onclick="setTheme('forest')" style="font-size:0.85rem;">Forest Green</button>
-          <button id="theme-btn-sunset" onclick="setTheme('sunset')" style="font-size:0.85rem;">Sunset Orange</button>
-          <button id="theme-btn-ocean" onclick="setTheme('ocean')" style="font-size:0.85rem;">Ocean Blue</button>
-          <button id="theme-btn-cyber" onclick="setTheme('cyber')" style="font-size:0.85rem;">Cyberpunk</button>
-          <button id="theme-btn-purple" onclick="setTheme('purple')" style="font-size:0.85rem;">Midnight Purple</button>
-          <button id="theme-btn-crimson" onclick="setTheme('crimson')" style="font-size:0.85rem;">Crimson</button>
-          <button id="theme-btn-highcontrast" onclick="setTheme('highcontrast')" style="font-size:0.85rem;">High Contrast</button>
-          <button id="theme-btn-oled" onclick="setTheme('oled')" style="font-size:0.85rem;">OLED Cobalt</button>
-          <button id="theme-btn-oled_crimson" onclick="setTheme('oled_crimson')" style="font-size:0.85rem;">OLED Crimson</button>
-          <button id="theme-btn-oled_purple" onclick="setTheme('oled_purple')" style="font-size:0.85rem;">OLED Purple</button>
-          <button id="theme-btn-oled_emerald" onclick="setTheme('oled_emerald')" style="font-size:0.85rem;">OLED Emerald</button>
-          <button id="theme-btn-oled_amber" onclick="setTheme('oled_amber')" style="font-size:0.85rem;">OLED Amber</button>
-          <button id="theme-btn-oled_cyan" onclick="setTheme('oled_cyan')" style="font-size:0.85rem;">OLED Cyan</button>
-        </div>
-
-        <hr style="border-color: var(--border); margin: 16px 0;">
-
-        <!-- Custom Highlight Override -->
-        <h4 style="font-size: 1.1rem; margin: 0 0 8px 0; color: var(--accent);">Custom Highlight Override</h4>
-        <div style="font-size:0.85rem; color: var(--subtext); margin-bottom: 4px;">Global Base Colors</div>
-        <div class="color-swatch-bar" style="margin-bottom: 12px;">
-          <div class="color-swatch" id="swatch-null" style="background: transparent; color: var(--text); display:flex; align-items:center; justify-content:center; font-size:0.8rem;" onclick="setHighlightOverride(null)">Reset</div>
-          <div class="color-swatch" id="swatch-ffffff" style="background: #ffffff;" onclick="setHighlightOverride('#ffffff')"></div>
-          <div class="color-swatch" id="swatch-ff5252" style="background: #ff5252;" onclick="setHighlightOverride('#ff5252')"></div>
-          <div class="color-swatch" id="swatch-ff4081" style="background: #ff4081;" onclick="setHighlightOverride('#ff4081')"></div>
-          <div class="color-swatch" id="swatch-e040fb" style="background: #e040fb;" onclick="setHighlightOverride('#e040fb')"></div>
-          <div class="color-swatch" id="swatch-7c4dff" style="background: #7c4dff;" onclick="setHighlightOverride('#7c4dff')"></div>
-          <div class="color-swatch" id="swatch-536dfe" style="background: #536dfe;" onclick="setHighlightOverride('#536dfe')"></div>
-          <div class="color-swatch" id="swatch-448aff" style="background: #448aff;" onclick="setHighlightOverride('#448aff')"></div>
-          <div class="color-swatch" id="swatch-40c4ff" style="background: #40c4ff;" onclick="setHighlightOverride('#40c4ff')"></div>
-          <div class="color-swatch" id="swatch-18ffff" style="background: #18ffff;" onclick="setHighlightOverride('#18ffff')"></div>
-          <div class="color-swatch" id="swatch-64ffda" style="background: #64ffda;" onclick="setHighlightOverride('#64ffda')"></div>
-          <div class="color-swatch" id="swatch-69f0ae" style="background: #69f0ae;" onclick="setHighlightOverride('#69f0ae')"></div>
-          <div class="color-swatch" id="swatch-b2ff59" style="background: #b2ff59;" onclick="setHighlightOverride('#b2ff59')"></div>
-          <div class="color-swatch" id="swatch-eeff41" style="background: #eeff41;" onclick="setHighlightOverride('#eeff41')"></div>
-          <div class="color-swatch" id="swatch-ffff00" style="background: #ffff00;" onclick="setHighlightOverride('#ffff00')"></div>
-          <div class="color-swatch" id="swatch-ffd740" style="background: #ffd740;" onclick="setHighlightOverride('#ffd740')"></div>
-          <div class="color-swatch" id="swatch-ffab40" style="background: #ffab40;" onclick="setHighlightOverride('#ffab40')"></div>
-          <div class="color-swatch" id="swatch-ff6e40" style="background: #ff6e40;" onclick="setHighlightOverride('#ff6e40')"></div>
-          
-          <div class="color-swatch" id="swatch-custom" style="position:relative; background: linear-gradient(45deg, red, orange, yellow, green, blue, purple); display:flex; align-items:center; justify-content:center; font-size:1.1rem; font-weight:bold;" onclick="document.getElementById('customColorPicker').click()">
-            🎨
-            <input type="color" id="customColorPicker" style="position:absolute; top:0; left:0; width:100%; height:100%; opacity:0; cursor:pointer;" onchange="setHighlightOverride(this.value)">
+            <!-- Auto-Theme Player Colors Checkbox -->
+            <div style="display:flex; align-items:center; gap:8px;">
+              <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:0.95rem; color:var(--text); user-select:none;">
+                <input type="checkbox" id="chkAutoThemeColors" onchange="setAutoThemeColors(this.checked)" style="width:20px; height:20px; cursor:pointer;">
+                Auto-Theme Player Colors
+              </label>
+            </div>
           </div>
         </div>
 
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 4px;">
-          <div style="font-size:0.85rem; color: var(--subtext);">Surprise Me Palette</div>
-          <button onclick="generateRandomRow()" style="min-height: 28px; height: 28px; font-size: 0.75rem; padding: 0 10px; border-radius: 6px; background:var(--btn-bg); color:var(--accent); border-color:var(--border);">🎲 Roll Row</button>
-        </div>
-        <div class="color-swatch-bar" id="randomSwatchBar" style="margin-bottom: 12px;"></div>
-
-        <div style="font-size:0.85rem; color: var(--subtext); margin-bottom: 4px;">Theme-Contextual Accents</div>
-        <div class="color-swatch-bar" id="contextualSwatchBar" style="margin-bottom: 16px;"></div>
-
-        <hr style="border-color: var(--border); margin: 16px 0;">
-
-        <!-- Player & Title Flairs -->
-        <h4 style="font-size: 1.1rem; margin: 0 0 8px 0; color: var(--accent);">Player & Title Flairs</h4>
-        <div style="margin-bottom: 12px; padding:12px; border:1px solid var(--border); border-radius:10px; background:rgba(0,0,0,0.15);">
-          <div style="font-weight: bold; color: var(--accent); font-size: 0.95rem; margin-bottom: 8px;">Scorecard Title Flair</div>
-          <div style="display:flex; gap:8px; align-items:center; margin-bottom: 8px;">
-            <div id="titleFlairPreview" onclick="setTitleFlair('')" style="cursor:pointer; font-size: 1.8rem; min-width: 48px; height: 48px; display:flex; align-items:center; justify-content:center; background:var(--btn-bg); border: 1px solid var(--border); border-radius: 12px; transition: all 0.15s;" title="Click preview block to clear emoji"></div>
-            <input type="text" id="titleFlairInput" placeholder="Type or paste scorecard emoji..." value="" onchange="setTitleFlair(this.value)" style="flex:1; height: 48px;">
+        <!-- Sub-section 2: Ergonomic Interface Mode -->
+        <div style="margin-bottom: 12px; border: 1px solid var(--border); padding: 12px; border-radius: 12px; background: rgba(0,0,0,0.12);">
+          <div class="collapse-header" onclick="toggleSubSection('interfaceModeSub')" style="padding: 2px 0;">
+            <h4 style="font-size: 1.05rem; margin: 0; color: var(--accent); display:flex; align-items:center; gap:6px;">📱 Ergonomic Interface Mode</h4>
+            <span id="icon-sub-interfaceModeSub" class="collapse-icon">▾</span>
           </div>
-          <div class="emoji-grid" id="titleEmojiGrid"></div>
+          <div id="sub-interfaceModeSub" style="margin-top: 12px;" class="hidden">
+            <div class="toggle-group" style="margin: 0;">
+              <button id="btnLeft" class="primary" onclick="setHandedness('left')" style="flex:1; font-size:0.9rem;">Left Ergonomic</button>
+              <button id="btnNormal" onclick="setHandedness('normal')" style="flex:1; font-size:0.9rem;">Centered</button>
+              <button id="btnRight" onclick="setHandedness('right')" style="flex:1; font-size:0.9rem;">Right Ergonomic</button>
+            </div>
+          </div>
         </div>
 
-        <div id="playerFlairsContainer" style="margin-bottom: 12px;"></div>
+        <!-- Sub-section 3: Themes & Accents -->
+        <div style="margin-bottom: 12px; border: 1px solid var(--border); padding: 12px; border-radius: 12px; background: rgba(0,0,0,0.12);">
+          <div class="collapse-header" onclick="toggleSubSection('themesAccents')" style="padding: 2px 0;">
+            <h4 style="font-size: 1.05rem; margin: 0; color: var(--accent); display:flex; align-items:center; gap:6px;">🎨 Themes & Custom Accents</h4>
+            <span id="icon-sub-themesAccents" class="collapse-icon">▾</span>
+          </div>
+          <div id="sub-themesAccents" style="margin-top: 12px;" class="hidden">
+            <!-- Theme Selection -->
+            <h5 style="font-size: 0.95rem; margin: 0 0 8px 0; color: var(--accent);">Theme Palette Grid</h5>
+            <div class="toggle-group theme-btn-group" style="margin-bottom: 16px;">
+              <button id="theme-btn-default" onclick="setTheme('default')" style="font-size:0.85rem;">Cobalt Dark</button>
+              <button id="theme-btn-slate" onclick="setTheme('slate')" style="font-size:0.85rem;">Slate Gray</button>
+              <button id="theme-btn-teal" onclick="setTheme('teal')" style="font-size:0.85rem;">Teal Mint</button>
+              <button id="theme-btn-spooky" onclick="setTheme('spooky')" style="font-size:0.85rem;">🎃 Spooky</button>
+              <button id="theme-btn-forest" onclick="setTheme('forest')" style="font-size:0.85rem;">Forest Green</button>
+              <button id="theme-btn-sunset" onclick="setTheme('sunset')" style="font-size:0.85rem;">Sunset Orange</button>
+              <button id="theme-btn-ocean" onclick="setTheme('ocean')" style="font-size:0.85rem;">Ocean Blue</button>
+              <button id="theme-btn-cyber" onclick="setTheme('cyber')" style="font-size:0.85rem;">Cyberpunk</button>
+              <button id="theme-btn-purple" onclick="setTheme('purple')" style="font-size:0.85rem;">Midnight Purple</button>
+              <button id="theme-btn-crimson" onclick="setTheme('crimson')" style="font-size:0.85rem;">Crimson</button>
+              <button id="theme-btn-highcontrast" onclick="setTheme('highcontrast')" style="font-size:0.85rem;">High Contrast</button>
+              <button id="theme-btn-oled" onclick="setTheme('oled')" style="font-size:0.85rem;">OLED Cobalt</button>
+              <button id="theme-btn-oled_crimson" onclick="setTheme('oled_crimson')" style="font-size:0.85rem;">OLED Crimson</button>
+              <button id="theme-btn-oled_purple" onclick="setTheme('oled_purple')" style="font-size:0.85rem;">OLED Purple</button>
+              <button id="theme-btn-oled_emerald" onclick="setTheme('oled_emerald')" style="font-size:0.85rem;">OLED Emerald</button>
+              <button id="theme-btn-oled_amber" onclick="setTheme('oled_amber')" style="font-size:0.85rem;">OLED Amber</button>
+              <button id="theme-btn-oled_cyan" onclick="setTheme('oled_cyan')" style="font-size:0.85rem;">OLED Cyan</button>
+            </div>
+
+            <hr style="border-color: var(--border); margin: 12px 0;">
+
+            <!-- Custom Highlight Override -->
+            <h5 style="font-size: 0.95rem; margin: 0 0 8px 0; color: var(--accent);">Custom Highlight Override</h5>
+            <div style="font-size:0.8rem; color: var(--subtext); margin-bottom: 4px;">Global Base Colors</div>
+            <div class="color-swatch-bar" style="margin-bottom: 12px;">
+              <div class="color-swatch" id="swatch-null" style="background: transparent; color: var(--text); display:flex; align-items:center; justify-content:center; font-size:0.8rem;" onclick="setHighlightOverride(null)">Reset</div>
+              <div class="color-swatch" id="swatch-ffffff" style="background: #ffffff;" onclick="setHighlightOverride('#ffffff')"></div>
+              <div class="color-swatch" id="swatch-ff5252" style="background: #ff5252;" onclick="setHighlightOverride('#ff5252')"></div>
+              <div class="color-swatch" id="swatch-ff4081" style="background: #ff4081;" onclick="setHighlightOverride('#ff4081')"></div>
+              <div class="color-swatch" id="swatch-e040fb" style="background: #e040fb;" onclick="setHighlightOverride('#e040fb')"></div>
+              <div class="color-swatch" id="swatch-7c4dff" style="background: #7c4dff;" onclick="setHighlightOverride('#7c4dff')"></div>
+              <div class="color-swatch" id="swatch-536dfe" style="background: #536dfe;" onclick="setHighlightOverride('#536dfe')"></div>
+              <div class="color-swatch" id="swatch-448aff" style="background: #448aff;" onclick="setHighlightOverride('#448aff')"></div>
+              <div class="color-swatch" id="swatch-40c4ff" style="background: #40c4ff;" onclick="setHighlightOverride('#40c4ff')"></div>
+              <div class="color-swatch" id="swatch-18ffff" style="background: #18ffff;" onclick="setHighlightOverride('#18ffff')"></div>
+              <div class="color-swatch" id="swatch-64ffda" style="background: #64ffda;" onclick="setHighlightOverride('#64ffda')"></div>
+              <div class="color-swatch" id="swatch-69f0ae" style="background: #69f0ae;" onclick="setHighlightOverride('#69f0ae')"></div>
+              <div class="color-swatch" id="swatch-b2ff59" style="background: #b2ff59;" onclick="setHighlightOverride('#b2ff59')"></div>
+              <div class="color-swatch" id="swatch-eeff41" style="background: #eeff41;" onclick="setHighlightOverride('#eeff41')"></div>
+              <div class="color-swatch" id="swatch-ffff00" style="background: #ffff00;" onclick="setHighlightOverride('#ffff00')"></div>
+              <div class="color-swatch" id="swatch-ffd740" style="background: #ffd740;" onclick="setHighlightOverride('#ffd740')"></div>
+              <div class="color-swatch" id="swatch-ffab40" style="background: #ffab40;" onclick="setHighlightOverride('#ffab40')"></div>
+              <div class="color-swatch" id="swatch-ff6e40" style="background: #ff6e40;" onclick="setHighlightOverride('#ff6e40')"></div>
+              
+              <div class="color-swatch" id="swatch-custom" style="position:relative; background: linear-gradient(45deg, red, orange, yellow, green, blue, purple); display:flex; align-items:center; justify-content:center; font-size:1.1rem; font-weight:bold;" onclick="document.getElementById('customColorPicker').click()">
+                🎨
+                <input type="color" id="customColorPicker" style="position:absolute; top:0; left:0; width:100%; height:100%; opacity:0; cursor:pointer;" onchange="setHighlightOverride(this.value)">
+              </div>
+            </div>
+
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 4px;">
+              <div style="font-size:0.8rem; color: var(--subtext);">Surprise Me Palette</div>
+              <button onclick="generateRandomRow()" style="min-height: 28px; height: 28px; font-size: 0.75rem; padding: 0 10px; border-radius: 6px; background:var(--btn-bg); color:var(--accent); border-color:var(--border);">🎲 Roll Row</button>
+            </div>
+            <div class="color-swatch-bar" id="randomSwatchBar" style="margin-bottom: 12px;"></div>
+
+            <div style="font-size:0.8rem; color: var(--subtext); margin-bottom: 4px;">Theme-Contextual Accents</div>
+            <div class="color-swatch-bar" id="contextualSwatchBar" style="margin-bottom: 4px;"></div>
+          </div>
+        </div>
+
+        <!-- Sub-section 4: Player & Title Flairs -->
+        <div style="margin-bottom: 4px; border: 1px solid var(--border); padding: 12px; border-radius: 12px; background: rgba(0,0,0,0.12);">
+          <div class="collapse-header" onclick="toggleSubSection('flairsSub')" style="padding: 2px 0;">
+            <h4 style="font-size: 1.05rem; margin: 0; color: var(--accent); display:flex; align-items:center; gap:6px;">⭐ Player & Scorecard Flairs</h4>
+            <span id="icon-sub-flairsSub" class="collapse-icon">▾</span>
+          </div>
+          <div id="sub-flairsSub" style="margin-top: 12px;" class="hidden">
+            <div style="margin-bottom: 12px; padding:12px; border:1px solid var(--border); border-radius:10px; background:rgba(0,0,0,0.15);">
+              <div style="font-weight: bold; color: var(--accent); font-size: 0.9rem; margin-bottom: 8px;">Scorecard Title Flair</div>
+              <div style="display:flex; gap:8px; align-items:center; margin-bottom: 8px;">
+                <div id="titleFlairPreview" onclick="setTitleFlair('')" style="cursor:pointer; font-size: 1.8rem; min-width: 48px; height: 48px; display:flex; align-items:center; justify-content:center; background:var(--btn-bg); border: 1px solid var(--border); border-radius: 12px; transition: all 0.15s;" title="Click preview block to clear emoji"></div>
+                <input type="text" id="titleFlairInput" placeholder="Type or paste scorecard emoji..." value="" onchange="setTitleFlair(this.value)" style="flex:1; height: 48px;">
+              </div>
+              <div class="emoji-grid" id="titleEmojiGrid"></div>
+            </div>
+
+            <div id="playerFlairsContainer" style="margin-bottom: 4px;"></div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -1517,6 +1549,65 @@
       
       // Hide all lines first
       [parLeftLine, parRightLine, holeLeftLine, holeRightLine].forEach(line => { if (line) line.style.display = 'none'; });
+
+      // Dynamically reposition top-bar preset loaders
+      let header = document.getElementById('appHeaderContainer');
+      let courseName = document.getElementById('courseName');
+      let loadCont = document.getElementById('headerLoadContainer');
+      let saveCont = document.getElementById('headerSaveContainer');
+      let wrapper = document.getElementById('headerQuickControlWrapper');
+
+      if (header && courseName) {
+        if (mode === 'normal') {
+          header.style.flexDirection = 'column';
+          header.style.padding = '0';
+          courseName.style.order = 1;
+          courseName.style.fontSize = '1.5rem';
+          courseName.style.width = '100%';
+          if (wrapper && loadCont && saveCont) {
+            wrapper.appendChild(loadCont);
+            wrapper.appendChild(saveCont);
+            wrapper.style.display = 'flex';
+            header.appendChild(wrapper);
+          }
+        } else if (mode === 'left') {
+          header.style.flexDirection = 'row';
+          header.style.alignItems = 'center';
+          header.style.padding = '0 4px';
+          if (wrapper) wrapper.style.display = 'none';
+          if (loadCont) {
+            loadCont.style.order = 1;
+            loadCont.style.flex = '0 0 115px';
+            header.appendChild(loadCont);
+          }
+          courseName.style.order = 2;
+          courseName.style.fontSize = '1.15rem';
+          courseName.style.flex = '1';
+          header.appendChild(courseName);
+          if (saveCont) {
+            saveCont.style.order = 3;
+            header.appendChild(saveCont);
+          }
+        } else if (mode === 'right') {
+          header.style.flexDirection = 'row';
+          header.style.alignItems = 'center';
+          header.style.padding = '0 4px';
+          if (wrapper) wrapper.style.display = 'none';
+          if (saveCont) {
+            saveCont.style.order = 1;
+            header.appendChild(saveCont);
+          }
+          courseName.style.order = 2;
+          courseName.style.fontSize = '1.15rem';
+          courseName.style.flex = '1';
+          header.appendChild(courseName);
+          if (loadCont) {
+            loadCont.style.order = 3;
+            loadCont.style.flex = '0 0 115px';
+            header.appendChild(loadCont);
+          }
+        }
+      }
 
       if (mode === 'normal') {
         // Centered layout: individual controls spaced on left and right margins

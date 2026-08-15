@@ -1,4 +1,4 @@
-# 🚀 Developer Handoff Blueprint: Minimal Disc Golf Pro (v1.2.0 Stable)
+# 🚀 Developer Handoff Blueprint: Minimal Disc Golf Pro (v1.2.1 Stable Alpha)
 
 This document is the bridge between this agent session and your local Android development environment. Use this to orient your local Gemini agent when you move between machines.
 
@@ -7,7 +7,7 @@ This document is the bridge between this agent session and your local Android de
 ## 🏗️ Project Overview
 Minimal Disc Golf Pro is a zero-dependency, single-file HTML/CSS/JS application. We have wrapped it in a native Android shell using Capacitor.
 
-*   **Root Entrypoint**: `index.html` (v1.2.0 Stable)
+*   **Root Entrypoint**: `index.html` (v1.2.1 Stable Alpha)
 *   **Release Vault**: `/releases/` (Immutable historical snapshots)
 *   **Core Configuration**: `capacitor.config.json` (Configured for `webDir: "www"`)
 *   **Remote Repository**: [github.com/betamark1337/minimal-disc-golf-pro](https://github.com/betamark1337/minimal-disc-golf-pro) (Anonymously hosted under pseudonym `betamark1337`)
@@ -27,12 +27,12 @@ We have resolved local machine compatibility obstacles. Future builds should fol
         ```bash
         JAVA_HOME=/usr/local/opt/openjdk@21 ./gradlew assembleDebug
         ```
-    *   The compiled installer `app-debug.apk` is generated in `android/app/build/outputs/apk/debug/`.
+    *   The compiled installer `app-debug.apk` is generated in `android/app/build/outputs/apk/debug/app-debug.apk`.
 
 ---
 
 ## 📱 Critical Workflow: Syncing to Android
-Before compiling your native app, always propagate your HTML modifications into the native Androidassets directory:
+Before compiling your native app, always propagate your HTML modifications into the native Android assets directory:
 
 ```bash
 npm run sync-android
@@ -43,14 +43,23 @@ npm run sync-android
 
 ---
 
-## ⚠️ Known Stability Lessons
-*   **Status Bar Style**: We modified `android/app/src/main/res/values/styles.xml` to force a **pure black status bar** (`#000000`) with white icons in both dark and light modes.
-*   **Stray Backslashes**: The JavaScript engine is extremely sensitive to trailing backslashes at the end of lines in the `<script>` block. Never add `\` at the end of lines.
-*   **Storage Limits**: Raw images are stored in the `photos` object store in IndexedDB (`dg_pro_db`); course presets and round history are in their own respective stores. Do not fall back to `localStorage` for media.
+## ⚠️ Core Lessons & Technical Stability
+*   **Desktop-to-Mobile Swipe Emulation**: When building touch swipe triggers (`touchstart`/`touchend`), mouse drags (`mousedown`/`mouseup`) must be emulated simultaneously. This ensures that horizontal swiping works perfectly in both desktop browsers (click-and-drag testing) and native mobile touch viewports. Always implement an interactive exclusion check (e.g. `isInteractiveElement`) so swiping doesn't conflict with text inputs, sliders, canvas graphs, or custom buttons.
+*   **Ergonomic Reparenting (DOM Order Manipulation)**: To support left-to-right single-row layout mirroring under ergonomic hand modes, use CSS Flexbox `order` attributes inside JS. This avoids complex DOM node removal and reparenting, maintaining robust input bindings.
+*   **Stray Backslashes**: The JavaScript engine is extremely sensitive to trailing backslashes at the end of lines in the `<script>` block. Never add `\` at the end of lines, especially during copy-paste operations.
+*   **Storage Architecture**: High-resolution images must be saved into IndexedDB (`dg_pro_db` ➔ `photos` store) as Base64. Do not store images in `localStorage`, which is capped at 5MB and prone to quiet storage exhaustion.
 
 ---
 
-## 🔮 Future Backlog (v1.2.1 / v1.3.0)
-*   **Anonymize Secret Modal**: Remove names `betamark` and `zero` from the secret UFO modal credits (leaving CMaster, G Unit, and the Gemini CLI Agent).
-*   **Obscure Easter Egg Button**: Relocate the UFO easter egg button to a more obscure, secret location in the app (rather than right next to the Help button in Settings).
-*   **Multi-Round Storage Enhancements**: Support exporting individual older rounds from history as standalone `.dgpro` files directly from the Past Rounds card.
+## 💡 Improvement & Design Guidance
+*   **OLED-First Layouts**: Keep backgrounds pure pitch black (`#000000`) for the 6 OLED themes. Outdoor high-brightness play drains mobile batteries extremely quickly; pitch-black pixels consume zero power, saving battery life.
+*   **Compact UI Select Labels**: On narrow portrait mobile devices, horizontal screen space is a precious commodity. Keep default `<option>` labels short (e.g., use `"Load"` instead of `"Load Saved Preset..."`) to prevent browsers from clipping text into ugly `"Load Sav"` wrappers.
+*   **Declarative Orientation Styling**: For landscape viewports on mobile, favor declarative CSS media queries (e.g., `@media (orientation: landscape) and (max-height: 550px)`) to scale down containers (like the relative SVG graph down to `180px` height) rather than complex JS resize listeners. It is faster, transitions smoothly, and has zero CPU overhead.
+
+---
+
+## 🔮 Suggested Future Features (Roadmap Reminder)
+*   **Advanced Stats & Course Records**: Add an advanced reporting screen calculating average strokes per par type (averages on Par 3s, Par 4s, Par 5s) and personal layout records over time.
+*   **Alternate Layout Duplication**: Build on top of the layout duplicating feature (`duplicateCoursePreset`) to support alternate tee layouts (e.g., "Chippewa Banks - Longs" duplicated from "Chippewa Banks - Shorts" for minor par edits).
+*   **Wear OS Scoring Companion**: Create a smartwatch companion interface allowing basic offline scoring adjustments on the wrist, synchronizing via a local Bluetooth bridge.
+*   **P2P Offline Local Sync**: Exchange live scorecard data with adjacent cards on the course using local WebRTC or Bluetooth LE—completely bypassing cellular carrier networks.
